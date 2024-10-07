@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Repositories\Cart\CartModelRepository;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 
@@ -12,7 +13,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        Paginator::useBootstrapFour();
+
+        $this->app->bind(CartModelRepository::class , function(){
+            return  new CartModelRepository();
+        });
     }
 
     /**
@@ -20,6 +25,5 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Paginator::useBootstrapFour();
     }
 }

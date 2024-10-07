@@ -6,7 +6,7 @@ use App\Http\Controllers\Dashboard\CategoriesController;
 use App\Http\Controllers\Dashboard\ProductsController;
 use App\Http\Controllers\Dashboard\ProfileController;
 
-Route::group(['prefix' => 'dashboard', 'middleware' => 'auth', 'as' => 'dashboard.'], function () {
+Route::group(['prefix' => 'dashboard', 'middleware' => ['auth','user_type:admin'], 'as' => 'dashboard.'], function () {
     
     // Main dashboard route
     Route::get('/', [DashboardController::class, 'index'])->name('index');

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('image');
             $table->json('options')->nullable();
             $table->float('price');
+            $table->float('compare_price')->nullable();
             $table->float('rating')->default(0);
             $table->boolean('featured')->default(0);
             $table->enum('status',['Active','Draft','Archived'])->default('Active');

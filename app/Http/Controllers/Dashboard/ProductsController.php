@@ -144,6 +144,9 @@ class ProductsController extends Controller
     }
 
     protected function handel_tags($request) {
+        if(!($request->post('tag'))){
+            return;
+        }
         $tags = json_decode($request->post('tag'));
         $tag_ids = [];
         $saved_tags = Tag::all();

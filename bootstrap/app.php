@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\CheckLastActivityTime;
+use App\Http\Middleware\UserType;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -11,7 +13,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->alias([
+            'user_type' => UserType::class,
+        ]);
+
+        $middleware->appendToGroup('web', [
+            CheckLastActivityTime::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

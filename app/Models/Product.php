@@ -19,11 +19,15 @@ class Product extends Model
     {
         static::addGlobalScope('scope',function (Builder $builder){
             $user = Auth::user();
-            if($user->store_id){
+            if($user && $user->store_id){
                 $builder->where('store_id','=', $user->store_id);
             }
         });
     }
+
+    static function Scopefeatured(Builder $query){
+        $query->where('featured','=',1);
+    }    
 
     public function category(){
         return $this->belongsTo(Category::class,'category_id','id');
