@@ -3,15 +3,7 @@
 @section('content')
 
         <!-- Breadcrumb Start -->
-        <div class="breadcrumb-wrap">
-            <div class="container-fluid">
-                <ul class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item"><a href="#">Products</a></li>
-                    <li class="breadcrumb-item active">Cart</li>
-                </ul>
-            </div>
-        </div>
+        <x-breadcrumb currentpage="Cart"/>
         <!-- Breadcrumb End -->
         
         <!-- Cart Start -->
@@ -21,6 +13,9 @@
                     <div class="col-lg-8">
                         <div class="cart-page-inner">
                             <div class="table-responsive">
+
+                        <x-success_alert/>
+                        
                                 <table class="table table-bordered">
                                     <thead class="thead-dark">
                                         <tr>
@@ -42,14 +37,28 @@
                                             </td>
                                             <td>{{ Currency::format($item->product->price) }}</td>
                                             <td>
-                                                <div class="qty">
-                                                    <button class="btn-minus"><i class="fa fa-minus"></i></button>
-                                                    <input type="text" value="{{ $item->quantity }}">
-                                                    <button class="btn-plus"><i class="fa fa-plus"></i></button>
-                                                </div>
+                                                <form method="POST" action="{{ route('cart.update', $item->id) }}">
+                                                    @method('PUT')
+                                                    @csrf
+                                                    <input type="hidden" name="quantity" class="quantity" value="{{ $item->quantity }}">
+                                                    <input type="hidden" name="product_id" value="{{ $item->product->id }}">
+                                                    <div class="qty">
+                                                        <button type="submit" name="action" value="minus" class="btn-minus"><i class="fa fa-minus"></i></button>
+                                                        <input type="text" class="quantity" value="{{ $item->quantity }}" readonly>
+                                                        <button type="submit" name="action" value="plus" class="btn-plus"><i class="fa fa-plus"></i></button>
+                                                    </div>
+                                                </form>
                                             </td>
+                                            
+                                             
                                             <td>{{ Currency::format($item->product->price * $item->quantity) }}</td>
-                                            <td><button><i class="fa fa-trash"></i></button></td>
+                                            <td>
+                                                <form method="POST" action="{{ route('cart.destroy', $item->id) }}">
+                                                    @csrf
+                                                    @method('delete')
+                                                    <button type="submit" class="btn-remove"><i class="fa fa-trash"></i></button>
+                                                </form>                                                
+                                            </td>
                                         </tr>
                                         @endforeach
                                     </tbody>

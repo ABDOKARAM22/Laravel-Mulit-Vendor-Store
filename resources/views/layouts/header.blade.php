@@ -55,7 +55,7 @@
                             <a href="{{ route('home') }}" class="nav-item nav-link active">Home</a>
                             <a href="{{ route('products.index') }}" class="nav-item nav-link">Products</a>
                             {{-- <a href="{{ url('product-detail.html') }}" class="nav-item nav-link">Product Detail</a> --}}
-                            <a href="{{ url('cart.html') }}" class="nav-item nav-link">Cart</a>
+                            <a href="{{ route('cart.index') }}" class="nav-item nav-link">Cart</a>
                             <a href="{{ url('checkout.html') }}" class="nav-item nav-link">Checkout</a>
                             <a href="{{ url('my-account.html') }}" class="nav-item nav-link">My Account</a>
                             <div class="nav-item dropdown">
@@ -105,7 +105,7 @@
                                 <i class="fa fa-heart"></i>
                                 <span>(0)</span>
                             </a>
-                            <a href="{{ url('cart.html') }}" class="btn cart">
+                            <a href="{{ route('cart.index') }}" class="btn cart">
                                 <i class="fa fa-shopping-cart"></i>
                                 <span>(0)</span>
                             </a>
