@@ -27,7 +27,7 @@
                                         </tr>
                                     </thead>
                                     <tbody class="align-middle">
-                                        @foreach ( $cart->get() as $item )
+                                        @forelse ( $cart->get() as $item )
                                         <tr>
                                             <td>
                                                 <div class="img">
@@ -60,7 +60,13 @@
                                                 </form>                                                
                                             </td>
                                         </tr>
-                                        @endforeach
+                                        @empty
+                                        
+                                        <tr>
+                                            <td colspan="5" >No Products Added To Cart..</td>
+                                        </tr>
+
+                                        @endforelse
                                     </tbody>
                                 </table>
                             </div>
@@ -85,7 +91,7 @@
                                         </div>
                                         <div class="cart-btn">
                                             <button>Update Cart</button>
-                                            <button>Checkout</button>
+                                            <button onclick="window.location.href='{{ route('checkout') }}'">Checkout</button>
                                         </div>
                                     </div>
                                 </div>
