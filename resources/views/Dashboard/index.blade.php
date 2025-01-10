@@ -587,3 +587,33 @@
     <!-- /.content -->
   <!-- /.content-wrapper -->
 @endsection
+
+@push('script')
+
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  // Enable pusher logging - don't include this in production
+  Pusher.logToConsole = true;
+
+  var pusher = new Pusher('5821c2bd12a9cd42758f', {
+    cluster: 'eu'
+  });
+
+  var channel = pusher.subscribe('my-channel');
+  channel.bind('my-event', function(data) {
+    // Extract order details from the data object
+    var order = data.order;
+
+    Swal.fire({
+      icon: 'info',
+      title: `New Order #${order.number}`,
+      text: `A new order #${order.number} has been created with status: ${order.status}`,
+      showConfirmButton: false,
+      timer: 5000
+    });
+  });
+</script>
+
+@endpush

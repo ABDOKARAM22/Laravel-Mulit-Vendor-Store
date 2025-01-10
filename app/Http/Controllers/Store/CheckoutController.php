@@ -62,8 +62,8 @@ class CheckoutController extends Controller
 
         }
 
-        event(new OrderCreated($order));
         DB::commit();
+        event(new OrderCreated($order));
 
     }catch(Throwable $e){
 

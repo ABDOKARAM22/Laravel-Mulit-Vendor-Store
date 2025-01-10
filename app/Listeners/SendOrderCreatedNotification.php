@@ -2,14 +2,13 @@
 
 namespace App\Listeners;
 
-use App\Facades\Cart;
-use App\Models\Product;
+use App\Models\User;
 use App\Events\OrderCreated;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Notifications\OrderCreatedNotification;
 
-class DebuctProductQuantity
+class SendOrderCreatedNotification
 {
     /**
      * Create the event listener.
@@ -24,12 +23,13 @@ class DebuctProductQuantity
      */
     public function handle(OrderCreated $event): void
     {
-        $order = $event->order;
-        foreach($order->products as $product){
+       $order = $event->order;
+    //    $user = User::where('store_id','=',$order->store_id)->first();
+       $user = User::where('id','=',7)->first();
+       if($user){
+           
+           $user->notify(new OrderCreatedNotification($order));
 
-            if ($product->quantity >= $product->pivot->quantity) {
-            $product->decrement('quantity',$product->pivot->quantity);
-            }
-        }
+       }
     }
 }
