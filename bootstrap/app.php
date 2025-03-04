@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\CheckLastActivityTime;
 use App\Http\Middleware\MarkNotificationsAsRead;
+use App\Http\Middleware\RedirectIfNotAdmin;
 use App\Http\Middleware\UserType;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -17,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'user_type' => UserType::class,
+            'RedirectIfNotAdmin' => RedirectIfNotAdmin::class,
         ]);
 
         $middleware->appendToGroup('web', [

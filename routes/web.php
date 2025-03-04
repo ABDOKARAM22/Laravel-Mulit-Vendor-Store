@@ -18,7 +18,7 @@ Route::resource('/cart',CartController::class);
 Route::get('/cheackout',[CheckoutController::class,'create'])->name('checkout');
 Route::post('/cheackout',[CheckoutController::class,'store'])->name('checkout');
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth:web')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

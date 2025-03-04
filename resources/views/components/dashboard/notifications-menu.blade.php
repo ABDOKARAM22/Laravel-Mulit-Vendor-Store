@@ -8,7 +8,7 @@
     </a>
     <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
       <span class="dropdown-item dropdown-header">{{$NotificationsCount}} Notifications</span>
-      @foreach ($notifications as $notification )
+      @forelse ($notifications as $notification )
           
       <div class="dropdown-divider"></div>
       <a href="{{$notification->data['url']}}?notification_id={{$notification->id}}" 
@@ -18,14 +18,23 @@
              <span>{{$notification->data['title']}}</span>
          </div>
          <div class="text-muted text-sm mt-1">
-             {{$notification->created_at->diffForHumans()}}
-         </div>
-     </a>
+           {{$notification->created_at->diffForHumans()}}
+          </div>
+        </a>
      
      
-        @endforeach
-      <div class="dropdown-divider"></div>
-      <a href="{{$notifications->last()->data['url']}}" class="dropdown-item dropdown-footer">See All Notifications</a>
+      @empty
+      
+      <p class="text-center">Not Found Notifications.</p>
+
+      @endforelse
+
+      @if (isset($notifications->last()->data['url']))
+      <div class="dropdown-divider">
+        <a href="{{$notifications->last()->data['url']}}" class="dropdown-item dropdown-footer">See All Notifications</a>
+      </div>
+      @endif
+
     </div>
   </li>
  

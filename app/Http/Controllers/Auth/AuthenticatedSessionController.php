@@ -24,11 +24,14 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        // Authenticate the user using the 'web' guard
+        $request->authenticate('web');
 
+        // Regenerate the session to prevent session fixation attacks
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard.index', absolute: false));
+        // Redirect the user to the intended page or the dashboard
+        return redirect()->intended(route('home', absolute: false));
     }
 
     /**
@@ -36,12 +39,13 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        // Log out the user from the 'web' guard
         Auth::guard('web')->logout();
 
-        $request->session()->invalidate();
-
+        // Regenerate the CSRF token
         $request->session()->regenerateToken();
 
+        // Redirect to the homepage or login page
         return redirect('/');
     }
 }

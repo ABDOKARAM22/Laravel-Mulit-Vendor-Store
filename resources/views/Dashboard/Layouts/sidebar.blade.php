@@ -15,9 +15,9 @@
           <img src="{{asset('dist/img/user2-160x160.jpg')}}" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
-          <a href="{{ route('dashboard.profile.edit') }}" class="d-block">{{Auth::user()->name}}</a>
-         @auth
-         <form action="{{ route('logout') }}" method="post">
+          <a href="{{ route('dashboard.profile.edit') }}" class="d-block">{{Auth::guard('admin')->user()->name}}</a>
+         @auth('admin')
+         <form action="{{ route('dashboard.logout') }}" method="post">
           @csrf
            <input type="submit" value="Log Out" class="btn btn-sm btn-outline-primary"/>
          </form>
