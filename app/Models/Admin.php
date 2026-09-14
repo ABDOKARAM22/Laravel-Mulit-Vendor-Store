@@ -10,6 +10,10 @@ class Admin extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    public const ROLE_SUPER_ADMIN = 'Super_Admin';
+    public const ROLE_ADMIN = 'Admin';
+    public const ROLE_VENDOR = 'Vendor';
+
     protected $guard = 'admin';
 
     /**
@@ -22,6 +26,7 @@ class Admin extends Authenticatable
         'email',
         'password',
         'role',
+        'store_id',
     ];
 
     /**
@@ -45,5 +50,10 @@ class Admin extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function store()
+    {
+        return $this->belongsTo(Store::class);
     }
 }

@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\Admin\LoginController;
-use App\Http\Controllers\Auth\Admin\RegisterController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\CategoriesController;
 use App\Http\Controllers\Dashboard\ProductsController;
@@ -12,13 +11,8 @@ use App\Http\Controllers\Dashboard\ProfileController;
 
 // Admin Authentication routes
 Route::prefix('admin')->middleware('guest:admin')->group(function () {
-
-    Route::get('register', [RegisterController::class, 'create'])->name('admin.register');
-    Route::post('register', [RegisterController::class, 'store']);
-
     Route::get('login', [LoginController::class, 'create'])->name('admin.login');
     Route::post('login', [LoginController::class, 'store']);
-    
 });
 
 
