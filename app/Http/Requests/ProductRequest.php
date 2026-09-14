@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Product;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 
 class ProductRequest extends FormRequest
 {
@@ -11,7 +14,16 @@ class ProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $admin = $this->user('admin');
+        if (! $admin) {
+            return false;
+        }
+
+        $product = $this->route('product');
+
+        return $product instanceof Product
+            ? Gate::forUser($admin)->allows('update', $product)
+            : Gate::forUser($admin)->allows('create', Product::class);
     }
 
     /**
@@ -21,18 +33,20 @@ class ProductRequest extends FormRequest
      */
     public function rules(): array
     {
-        $productId = $this->route('product') ?? null;
-        
         return [
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => [$this->isMethod('post') ? 'required' : 'nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
             'options' => 'nullable|json',
             'price' => 'required|numeric|min:0',
             'rating' => 'nullable|numeric|min:0|max:5',
             'featured' => 'required|boolean',
             'status' => 'required|string|in:Active,Archived,Draft',
+            'slug' => [
+                'prohibited',
+                Rule::unique('products', 'slug')->ignore($this->route('product')),
+            ],
         ];
     }
 }

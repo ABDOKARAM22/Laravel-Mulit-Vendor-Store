@@ -33,7 +33,7 @@ class CartController extends Controller
             'quantity' => 'nullable|integer|min:1'
         ]);
         
-        $product = Product::findOrFail($request->post('product_id'));
+        $product = Product::where('status', 'Active')->findOrFail($request->post('product_id'));
         $this->cart->add($product,$request->post('quantity'));
         
         return redirect()->route('cart.index')->with('success','Product Added Successfully.');

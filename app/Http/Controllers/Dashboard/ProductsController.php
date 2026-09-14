@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\ProductRequest;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,17 +18,26 @@ class ProductsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with(['store','category'])->Paginate();
+        $admin = $request->user('admin');
+        Gate::forUser($admin)->authorize('viewAny', Product::class);
+
+        $query = Product::with(['store','category']);
+        if ($admin->isVendor()) {
+            $query->where('store_id', $admin->store_id);
+        }
+
+        $products = $query->paginate();
         return view('Dashboard.products.index',compact('products'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
+        Gate::forUser($request->user('admin'))->authorize('create', Product::class);
         $categories = Category::pluck('name','id');
         return view('Dashboard.products.create', [
             'categories' => $categories,
@@ -38,20 +48,18 @@ class ProductsController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(ProductRequest $request)
-{
-    $store_id = Auth::user()->store_id;
-    $product_slug = Str::slug($request->name);
+    {
+        $admin = $request->user('admin');
+        Gate::forUser($admin)->authorize('create', Product::class);
 
-    $request->merge([
-        'store_id' => $store_id ,
-        'slug' =>$product_slug
-    ]);
-
-
-        $data = $request->except('tag','image');
+        $data = $request->safe()->except(['tag', 'image', 'slug', 'store_id']);
+        $data['slug'] = $this->uniqueSlug($request->string('name')->toString());
         $data ['image'] = $this->upload_image($request);
 
-        $product = Product::create($data);
+        $product = new Product($data);
+        $product->store_id = $admin->store_id;
+        $product->slug = $data['slug'];
+        $product->save();
         
         $product->tags()->sync($this->handel_tags($request));
         
@@ -61,17 +69,19 @@ class ProductsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Product $product, Request $request)
     {
-        //
+        Gate::forUser($request->user('admin'))->authorize('view', $product);
+
+        return redirect()->route('dashboard.products.edit', $product);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Product $product, Request $request)
     {
-        $product = Product::findOrFail($id);
+        Gate::forUser($request->user('admin'))->authorize('view', $product);
         $categories = Category::pluck('name','id');
         $tags = implode(',',$product->tags()->pluck('name')->toArray());
         return view('Dashboard.products.edit', compact('product','categories','tags'));
@@ -79,11 +89,12 @@ class ProductsController extends Controller
     }
      
     
-    public function update(ProductRequest $request, string $id)
+    public function update(ProductRequest $request, Product $product)
     {
-        $product = Product::findOrFail($id);
+        Gate::forUser($request->user('admin'))->authorize('update', $product);
         $old_image = $product->image; 
-        $data = $request->except('tag','image');
+        $data = $request->safe()->except(['tag', 'image', 'slug', 'store_id']);
+        $data['slug'] = $this->uniqueSlug($request->string('name')->toString(), $product);
 
         $new_image = $this->upload_image($request);
       
@@ -93,7 +104,9 @@ class ProductsController extends Controller
 
         $product->tags()->sync($this->handel_tags($request));
 
-        $product->update($data);
+        $product->fill($data);
+        $product->slug = $data['slug'];
+        $product->save();
 
         if (isset($data['image']) && isset($old_image)) {
             Storage::disk('uploads')->delete($old_image);
@@ -106,29 +119,38 @@ class ProductsController extends Controller
     
     public function trash(Request $request){
 
-        $products = Product::onlyTrashed()->paginate();
+        $admin = $request->user('admin');
+        Gate::forUser($admin)->authorize('viewAny', Product::class);
+        $query = Product::onlyTrashed();
+        if ($admin->isVendor()) {
+            $query->where('store_id', $admin->store_id);
+        }
+
+        $products = $query->paginate();
         return view('Dashboard.products.trash',compact('products'));
 
     }
 
     
-    public function restore($id){
-        $product = product::onlyTrashed()->FindOrFail($id);
+    public function restore(string $id, Request $request){
+        $product = Product::onlyTrashed()->findOrFail($id);
+        Gate::forUser($request->user('admin'))->authorize('restore', $product);
         $product->restore();
         return redirect()->route('dashboard.products.trash')->with('success','Product Restored Sucsefully.');
     }
     
-    public function destroy(string $id)
+    public function destroy(Product $product, Request $request)
     {
-        $product = Product::FindOrFail($id);
+        Gate::forUser($request->user('admin'))->authorize('delete', $product);
         $product->delete();
         return redirect()->back()->with("success", "Product Deleted Sucsefully.");
     }
 
 
-    public function forcedelete($id){
+    public function forcedelete(string $id, Request $request){
 
-        $product = Product::onlyTrashed()->FindOrFail($id);
+        $product = Product::onlyTrashed()->findOrFail($id);
+        Gate::forUser($request->user('admin'))->authorize('forceDelete', $product);
         
         $image = $product->image;
 
@@ -181,5 +203,23 @@ class ProductsController extends Controller
         $path = $image->store("products", ['disk' => 'uploads']);
 
         return $path;
+    }
+
+    protected function uniqueSlug(string $name, ?Product $product = null): string
+    {
+        $slug = Str::slug($name);
+        $candidate = $slug;
+        $suffix = 1;
+
+        while (
+            Product::withTrashed()
+                ->where('slug', $candidate)
+                ->when($product, fn ($query) => $query->where($product->getTable() . '.id', '!=', $product->getKey()))
+                ->exists()
+        ) {
+            $candidate = $slug . '-' . $suffix++;
+        }
+
+        return $candidate;
     }
 }

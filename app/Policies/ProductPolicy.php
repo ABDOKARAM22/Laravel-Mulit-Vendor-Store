@@ -7,14 +7,14 @@ use App\Models\Product;
 
 class ProductPolicy
 {
-    public function before(Admin $admin): ?bool
+    public function before(Admin $admin, string $ability): ?bool
     {
-        return $admin->isSuperAdmin() ? true : null;
+        return $admin->isSuperAdmin() && $ability !== 'create' ? true : null;
     }
 
     public function viewAny(Admin $admin): bool
     {
-        return $admin->isAdmin() || $admin->isVendor();
+        return $admin->isAdmin() || ($admin->isVendor() && $admin->store_id !== null);
     }
 
     public function view(Admin $admin, Product $product): bool
@@ -24,7 +24,7 @@ class ProductPolicy
 
     public function create(Admin $admin): bool
     {
-        return $admin->isAdmin() || ($admin->isVendor() && $admin->store_id !== null);
+        return $admin->isVendor() && $admin->store_id !== null;
     }
 
     public function update(Admin $admin, Product $product): bool

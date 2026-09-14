@@ -12,7 +12,7 @@ class Product extends Model
 {
     use HasFactory , SoftDeletes;
 
-    protected $fillable  = ['name','category_id','store_id','slug','description','image','options','price','rating','featured','status'];
+    protected $fillable  = ['name','category_id','description','image','options','price','rating','featured','status'];
 
     static function Scopefeatured(Builder $query){
         $query->where('featured','=',1);

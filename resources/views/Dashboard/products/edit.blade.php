@@ -38,9 +38,6 @@
                             @enderror
                         </div>
 
-                        <input type="hidden" name="store_id" value="{{ $product->store_id}}">
-                        <input type="hidden" name="slug" value="{{ $product->slug}}">
-
                         <!-- Tags -->
                         <div class="form-group">
                             <label for="tag">Tags</label>
