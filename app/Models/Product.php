@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 
 
 class Product extends Model
@@ -14,16 +13,6 @@ class Product extends Model
     use HasFactory , SoftDeletes;
 
     protected $fillable  = ['name','category_id','store_id','slug','description','image','options','price','rating','featured','status'];
-
-    protected static function booted()
-    {
-        static::addGlobalScope('scope',function (Builder $builder){
-            $user = Auth::user();
-            if($user && $user->store_id){
-                $builder->where('store_id','=', $user->store_id);
-            }
-        });
-    }
 
     static function Scopefeatured(Builder $query){
         $query->where('featured','=',1);
