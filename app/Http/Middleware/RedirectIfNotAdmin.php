@@ -9,11 +9,11 @@ use Symfony\Component\HttpFoundation\Response;
 class RedirectIfNotAdmin
 {
     public function handle(Request $request, Closure $next): Response
-{
-    if (!auth()->guard('admin')->check()) {
-        return redirect()->route('admin.login');
-    }
+    {
+        if (! $request->user('admin')) {
+            return redirect()->route('admin.login');
+        }
 
-    return $next($request);
-}
+        return $next($request);
+    }
 }

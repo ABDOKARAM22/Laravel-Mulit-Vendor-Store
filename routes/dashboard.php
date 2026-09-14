@@ -16,17 +16,19 @@ Route::prefix('admin')->middleware('guest:admin')->group(function () {
 });
 
 
-Route::group(['prefix' => 'dashboard', 'middleware' => ['RedirectIfNotAdmin'] , 'as' => 'dashboard.'], function () {
+Route::group(['prefix' => 'dashboard', 'middleware' => ['RedirectIfNotAdmin', 'admin_role:Admin,Super_Admin,Vendor'] , 'as' => 'dashboard.'], function () {
     
         
     // Main dashboard route
     Route::get('/', [DashboardController::class, 'index'])->name('index');
     
     // Categories routes
-    Route::get('/categories/trash', [CategoriesController::class, 'trash'])->name('categories.trash');
-    Route::put('/categories/{category}/restore', [CategoriesController::class, 'restore'])->name('categories.restore');
-    Route::delete('/categories/{category}/forcedelete', [CategoriesController::class, 'forcedelete'])->name('categories.forcedelete');
-    Route::resource('/categories', CategoriesController::class);
+    Route::middleware('admin_role:Admin,Super_Admin')->group(function () {
+        Route::get('/categories/trash', [CategoriesController::class, 'trash'])->name('categories.trash');
+        Route::put('/categories/{category}/restore', [CategoriesController::class, 'restore'])->name('categories.restore');
+        Route::delete('/categories/{category}/forcedelete', [CategoriesController::class, 'forcedelete'])->name('categories.forcedelete');
+        Route::resource('/categories', CategoriesController::class);
+    });
     
     // Products routes
     Route::get('/products/trash', [ProductsController::class, 'trash'])->name('products.trash');
