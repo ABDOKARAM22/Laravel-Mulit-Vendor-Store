@@ -27,6 +27,7 @@ class CartModelRepository implements CartRepository{
     }
 
     public function add(Product $product , $quantity = 1){
+        $quantity = max(1, (int) $quantity);
 
         $item = cart::where('product_id','=',$product->id)->first();
 
@@ -48,17 +49,22 @@ class CartModelRepository implements CartRepository{
     }
 
     public function update($id ,$quantity){
-
-        Cart::where('id','=',$id)->update(['quantity'=>$quantity]);
+        Cart::whereKey($id)->update(['quantity'=>max(1, (int) $quantity)]);
         
     }
     
     public function delete($id){
-        Cart::where('id','=',$id)->delete();
+        Cart::findOrFail($id)->delete();
     }
     
-    public function empty(){
-        Cart::query()->delete();
+    public function empty(?array $ids = null){
+        $query = Cart::query();
+
+        if ($ids !== null) {
+            $query->whereIn('id', $ids);
+        }
+
+        $query->delete();
     }
     
     public function total() : float{

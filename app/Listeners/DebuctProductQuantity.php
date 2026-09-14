@@ -24,12 +24,6 @@ class DebuctProductQuantity
      */
     public function handle(OrderCreated $event): void
     {
-        $order = $event->order;
-        foreach($order->products as $product){
-
-            if ($product->quantity >= $product->pivot->quantity) {
-            $product->decrement('quantity',$product->pivot->quantity);
-            }
-        }
+        // Inventory is reserved and decremented inside the checkout transaction.
     }
 }

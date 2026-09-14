@@ -22,6 +22,6 @@ class EmptyCart
      */
     public function handle( $event): void
     {
-        // Cart::empty();
+        // Purchased cart rows are cleared inside the checkout transaction.
     }
 }

@@ -3,16 +3,14 @@
 namespace App\Http\Controllers\Store;
 
 use App\Events\OrderCreated;
-use App\Facades\Cart;
+use App\Http\Requests\CheckoutRequest;
 use App\Http\Controllers\Controller;
+use App\Models\Cart;
 use App\Models\Order;
-use App\Models\OrderItem;
+use App\Models\Product;
 use App\Repositories\Cart\CartModelRepository;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\Intl\Countries;
-use Throwable;
 
 class CheckoutController extends Controller
 {
@@ -26,51 +24,81 @@ class CheckoutController extends Controller
         ]);
     }
 
-    public function store(Request $request , CartModelRepository $cart){
+    public function store(CheckoutRequest $request, CartModelRepository $cart)
+    {
+        $orders = DB::transaction(function () use ($request, $cart) {
+            $cartItems = Cart::with('product')->lockForUpdate()->get();
 
-        // $request->validate();
+            if ($cartItems->isEmpty()) {
+                return collect();
+            }
 
-        $items = $cart->get()->groupBy('product.store_id')->all();
+            $lockedItems = $cartItems->map(function ($cartItem) {
+                $product = Product::whereKey($cartItem->product_id)
+                    ->where('status', 'Active')
+                    ->lockForUpdate()
+                    ->firstOrFail();
 
-        DB::beginTransaction();
-        try{
-            
-            foreach($items as $store_id => $cart_items){
-                
+                if ($cartItem->quantity > $product->quantity) {
+                    abort(422, "Insufficient stock for {$product->name}.");
+                }
+
+                return compact('cartItem', 'product');
+            });
+
+            $orders = $lockedItems->groupBy(fn ($item) => $item['product']->store_id)
+                ->map(function ($storeItems, $storeId) use ($request) {
+                    $totalCents = $storeItems->sum(
+                        fn ($item) => $this->moneyToCents($item['product']->price) * $item['cartItem']->quantity
+                    );
+
                     $order = Order::create([
-                        'store_id' => $store_id,
-                        'user_id' => Auth::id(),
+                        'store_id' => $storeId,
+                        'user_id' => $request->user('web')?->id,
                         'payment_method' => 'cod',
+                        'shipping' => 0,
+                        'tax' => 0,
+                        'discount' => 0,
+                        'total' => $totalCents / 100,
                     ]);
-                    
-                    foreach($cart_items as $item){
-                        
-                        OrderItem::create([
-                            'order_id' => $order->id,
-                            'product_id' => $item->product->id,
-                            'product_name' => $item->product->name,
-                            'price' => $item->product->price,
-                            'quantity' => $item->quantity,
+
+                    foreach ($storeItems as $item) {
+                        $product = $item['product'];
+                        $cartItem = $item['cartItem'];
+
+                        $order->products()->attach($product->id, [
+                            'product_name' => $product->name,
+                            'price' => $this->moneyToCents($product->price) / 100,
+                            'quantity' => $cartItem->quantity,
+                            'options' => $cartItem->options,
                         ]);
-                    }
-                    
-                    foreach ($request->post('addr') as $type => $address){
-                        
-                        $address['type'] = $type;
-                        $order->addresses()->create($address);
+
+                        $product->decrement('quantity', $cartItem->quantity);
                     }
 
+                    foreach ($request->validated('addr') as $type => $address) {
+                        $order->addresses()->create([...$address, 'type' => $type]);
+                    }
+
+                    return $order;
+                })->values();
+
+            $cart->empty($cartItems->pluck('id')->all());
+
+            return $orders;
+        });
+
+        if ($orders->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
 
-        DB::commit();
-        event(new OrderCreated($order));
+        $orders->each(fn (Order $order) => event(new OrderCreated($order)));
 
-    }catch(Throwable $e){
-
-        DB::rollBack();
-
-        throw $e;
+        return redirect()->route('home')->with('success', 'Order placed successfully.');
     }
-        
+
+    private function moneyToCents(string|float|int $amount): int
+    {
+        return (int) round(((float) $amount) * 100);
     }
 }

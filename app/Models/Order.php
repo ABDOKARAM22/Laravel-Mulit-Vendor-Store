@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class Order extends Model
 {
@@ -17,7 +18,21 @@ class Order extends Model
         'payment_method',
         'status',
         'payment_status',
+        'shipping',
+        'tax',
+        'discount',
+        'total',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'shipping' => 'decimal:2',
+            'tax' => 'decimal:2',
+            'discount' => 'decimal:2',
+            'total' => 'decimal:2',
+        ];
+    }
 
     
     public function store(){
@@ -62,12 +77,37 @@ class Order extends Model
 
     public static function GetNextOrderNumber(){
         $year = Carbon::now()->year;
-        $number = Order::whereYear('created_at',$year)->max('number');
 
-        if($number){
-            return $number + 1 ;
-        }
+        return DB::transaction(function () use ($year) {
+            $sequence = DB::table('order_number_sequences')
+                ->where('year', $year)
+                ->lockForUpdate()
+                ->first();
 
-        return $year . '0001';
+            if (! $sequence) {
+                DB::table('order_number_sequences')->insertOrIgnore([
+                    'year' => $year,
+                    'next_number' => 1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                $sequence = DB::table('order_number_sequences')
+                    ->where('year', $year)
+                    ->lockForUpdate()
+                    ->first();
+            }
+
+            $number = (int) $sequence->next_number;
+
+            DB::table('order_number_sequences')
+                ->where('year', $year)
+                ->update([
+                    'next_number' => $number + 1,
+                    'updated_at' => now(),
+                ]);
+
+            return $year . str_pad((string) $number, 4, '0', STR_PAD_LEFT);
+        });
     }
 }

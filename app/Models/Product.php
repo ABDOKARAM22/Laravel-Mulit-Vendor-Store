@@ -12,6 +12,14 @@ class Product extends Model
 {
     use HasFactory , SoftDeletes;
 
+    protected function casts(): array
+    {
+        return [
+            'price' => 'decimal:2',
+            'compare_price' => 'decimal:2',
+        ];
+    }
+
     protected $fillable  = ['name','category_id','description','image','options','price','rating','featured','status'];
 
     static function Scopefeatured(Builder $query){
