@@ -7,6 +7,26 @@ use App\Models\Store;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 
+test('dashboard routes reject guests and customer sessions', function () {
+    $this->get(route('dashboard.index'))
+        ->assertRedirect(route('admin.login'));
+
+    $this->actingAs(User::factory()->create(), 'web')
+        ->get(route('dashboard.index'))
+        ->assertRedirect(route('admin.login'));
+});
+
+test('vendors without a store cannot enter the dashboard', function () {
+    $vendor = Admin::factory()->create([
+        'role' => Admin::ROLE_VENDOR,
+        'store_id' => null,
+    ]);
+
+    $this->actingAs($vendor, 'admin')
+        ->get(route('dashboard.index'))
+        ->assertForbidden();
+});
+
 test('vendors cannot access category management routes', function () {
     $vendor = Admin::factory()->create([
         'role' => Admin::ROLE_VENDOR,
@@ -26,6 +46,14 @@ test('admins can access category management routes', function () {
     $this->actingAs($admin, 'admin')
         ->get(route('dashboard.categories.index'))
         ->assertOk();
+});
+
+test('admins cannot create products through the product route', function () {
+    $admin = Admin::factory()->create(['role' => Admin::ROLE_ADMIN]);
+
+    $this->actingAs($admin, 'admin')
+        ->get(route('dashboard.products.create'))
+        ->assertForbidden();
 });
 
 test('vendor policies are limited to the assigned store', function () {

@@ -146,6 +146,15 @@ test('multi-store checkout creates and dispatches one order per actual product s
         ->and(Cart::withoutGlobalScopes()->where('cookie_id', $cookieId)->count())->toBe(0);
 
     Event::assertDispatched(OrderCreated::class, 2);
+    $eventStoreIds = Event::dispatched(OrderCreated::class)
+        ->map(fn (array $event) => $event[0]->order->store_id)
+        ->sort()
+        ->values()
+        ->all();
+
+    expect($eventStoreIds)->toBe(
+        collect([$productA->store_id, $productB->store_id])->sort()->values()->all()
+    );
 });
 
 test('checkout rejects unsupported payment and malformed addresses', function () {

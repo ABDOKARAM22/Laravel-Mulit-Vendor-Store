@@ -153,5 +153,10 @@ test('order item and address snapshots remain available after product changes', 
     expect($order->items->first()->product_name)->toBe('Original Product')
         ->and((float) $order->items->first()->price)->toBe(12.50)
         ->and((float) $order->items->first()->subtotal)->toBe(25.0)
+        ->and((float) $order->subtotal)->toBe(20.0)
+        ->and((float) $order->shipping)->toBe(0.0)
+        ->and((float) $order->tax)->toBe(0.0)
+        ->and((float) $order->discount)->toBe(0.0)
+        ->and((float) $order->total)->toBe(20.0)
         ->and($order->shippingAddress->street_address)->toBe('1 Main Street');
 });
