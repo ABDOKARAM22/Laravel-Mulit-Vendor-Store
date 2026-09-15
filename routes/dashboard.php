@@ -6,6 +6,7 @@ use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\CategoriesController;
 use App\Http\Controllers\Dashboard\ProductsController;
 use App\Http\Controllers\Dashboard\ProfileController;
+use App\Http\Controllers\Dashboard\OrdersController;
 
 
 
@@ -35,6 +36,10 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['RedirectIfNotAdmin', 'a
     Route::put('/products/{product}/restore', [ProductsController::class, 'restore'])->name('products.restore');
     Route::delete('/products/{product}/forcedelete', [ProductsController::class, 'forcedelete'])->name('products.forcedelete');
     Route::resource('/products', ProductsController::class);
+
+    Route::get('/orders', [OrdersController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrdersController::class, 'show'])->name('orders.show');
+    Route::patch('/orders/{order}/status', [OrdersController::class, 'updateStatus'])->name('orders.status');
     
     // Profile routes
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');

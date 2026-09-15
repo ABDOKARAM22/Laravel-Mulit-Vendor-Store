@@ -17,11 +17,20 @@ class OrderItem extends Pivot
         'product_name',
         'price',
         'quantity',
+        'subtotal',
         'options',
     ];
 
     public $incrementing = true;
     public $timestamps = false;
+
+    protected function casts(): array
+    {
+        return [
+            'price' => 'decimal:2',
+            'subtotal' => 'decimal:2',
+        ];
+    }
 
     public function product(){
         return $this->belongsTo(Product::class)->withDefault([

@@ -11,6 +11,28 @@ class Order extends Model
 {
     use HasFactory;
 
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_PROCESSING = 'processing';
+    public const STATUS_DELIVERING = 'delivering';
+    public const STATUS_COMPLETED = 'completed';
+    public const STATUS_CANCELLED = 'cancelled';
+
+    public const STATUSES = [
+        self::STATUS_PENDING,
+        self::STATUS_PROCESSING,
+        self::STATUS_DELIVERING,
+        self::STATUS_COMPLETED,
+        self::STATUS_CANCELLED,
+    ];
+
+    public const TRANSITIONS = [
+        self::STATUS_PENDING => [self::STATUS_PROCESSING, self::STATUS_CANCELLED],
+        self::STATUS_PROCESSING => [self::STATUS_DELIVERING, self::STATUS_CANCELLED],
+        self::STATUS_DELIVERING => [self::STATUS_COMPLETED],
+        self::STATUS_COMPLETED => [],
+        self::STATUS_CANCELLED => [],
+    ];
+
     protected $fillable = [
         'store_id',
         'user_id',
@@ -21,6 +43,7 @@ class Order extends Model
         'shipping',
         'tax',
         'discount',
+        'subtotal',
         'total',
     ];
 
@@ -30,6 +53,7 @@ class Order extends Model
             'shipping' => 'decimal:2',
             'tax' => 'decimal:2',
             'discount' => 'decimal:2',
+            'subtotal' => 'decimal:2',
             'total' => 'decimal:2',
         ];
     }
@@ -49,6 +73,16 @@ class Order extends Model
         return $this->belongsToMany(Product::class,'order_items','order_id','product_id','id','id')
         ->using(OrderItem::class)
         ->withPivot(['product_name','price','quantity','options']);
+    }
+
+    public function items()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    public function canTransitionTo(string $status): bool
+    {
+        return in_array($status, self::TRANSITIONS[$this->status] ?? [], true);
     }
 
     public function addresses(){

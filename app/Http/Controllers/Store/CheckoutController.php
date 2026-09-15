@@ -59,6 +59,7 @@ class CheckoutController extends Controller
                         'shipping' => 0,
                         'tax' => 0,
                         'discount' => 0,
+                        'subtotal' => $totalCents / 100,
                         'total' => $totalCents / 100,
                     ]);
 
@@ -70,6 +71,7 @@ class CheckoutController extends Controller
                             'product_name' => $product->name,
                             'price' => $this->moneyToCents($product->price) / 100,
                             'quantity' => $cartItem->quantity,
+                            'subtotal' => $this->moneyToCents($product->price) * $cartItem->quantity / 100,
                             'options' => $cartItem->options,
                         ]);
 

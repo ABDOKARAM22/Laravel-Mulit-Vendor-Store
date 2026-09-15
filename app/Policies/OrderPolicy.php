@@ -20,6 +20,11 @@ class OrderPolicy
             || $user->isVendor();
     }
 
+    public function viewCustomerOrders(User $user): bool
+    {
+        return true;
+    }
+
     public function view(Admin|User $user, Order $order): bool
     {
         if ($user instanceof User) {
@@ -30,9 +35,12 @@ class OrderPolicy
             || ($user->isVendor() && $user->store_id === $order->store_id);
     }
 
-    public function update(Admin|User $user, Order $order): bool
+    public function updateStatus(Admin $admin, Order $order, string $status): bool
     {
-        return $user instanceof Admin && 
-        ($user->isAdmin() || ($user->isVendor() && $user->store_id === $order->store_id));
+        if (! $admin->isAdmin() && ! ($admin->isVendor() && $admin->store_id === $order->store_id)) {
+            return false;
+        }
+
+        return $order->canTransitionTo($status);
     }
 }
