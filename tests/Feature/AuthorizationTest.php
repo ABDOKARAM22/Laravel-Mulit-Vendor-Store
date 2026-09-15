@@ -38,8 +38,8 @@ test('vendor policies are limited to the assigned store', function () {
     ]);
     $productA = Product::factory()->create(['store_id' => $storeA->id, 'category_id' => $category->id]);
     $productB = Product::factory()->create(['store_id' => $storeB->id, 'category_id' => $category->id]);
-    $orderA = Order::create(['store_id' => $storeA->id, 'payment_method' => 'cod']);
-    $orderB = Order::create(['store_id' => $storeB->id, 'payment_method' => 'cod']);
+    $orderA = Order::forceCreate(['store_id' => $storeA->id, 'payment_method' => 'cod']);
+    $orderB = Order::forceCreate(['store_id' => $storeB->id, 'payment_method' => 'cod']);
 
     expect(Gate::forUser($vendor)->allows('update', $productA))->toBeTrue()
         ->and(Gate::forUser($vendor)->allows('update', $productB))->toBeFalse()
@@ -51,8 +51,8 @@ test('customers can only view their own orders through the customer policy abili
     $customer = User::factory()->create();
     $otherCustomer = User::factory()->create();
     $store = Store::factory()->create();
-    $ownOrder = Order::create(['store_id' => $store->id, 'user_id' => $customer->id, 'payment_method' => 'cod']);
-    $otherOrder = Order::create(['store_id' => $store->id, 'user_id' => $otherCustomer->id, 'payment_method' => 'cod']);
+    $ownOrder = Order::forceCreate(['store_id' => $store->id, 'user_id' => $customer->id, 'payment_method' => 'cod']);
+    $otherOrder = Order::forceCreate(['store_id' => $store->id, 'user_id' => $otherCustomer->id, 'payment_method' => 'cod']);
 
     expect(Gate::forUser($customer)->allows('view', $ownOrder))->toBeTrue()
         ->and(Gate::forUser($customer)->allows('view', $otherOrder))->toBeFalse();

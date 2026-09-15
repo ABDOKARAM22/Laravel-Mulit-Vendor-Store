@@ -23,7 +23,7 @@ beforeEach(function () {
 
 function notificationOrder(Store $store): Order
 {
-    return Order::create([
+    return Order::forceCreate([
         'store_id' => $store->id,
         'payment_method' => 'cod',
     ]);

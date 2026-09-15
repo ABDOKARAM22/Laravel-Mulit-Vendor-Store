@@ -17,7 +17,7 @@ class Category extends Model
         return [
             'name' => "required|string|min:3|max:255|unique:categories,name,$id",
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'image' => 'nullable|image|mimetypes:image/jpeg,image/png,image/gif|mimes:jpg,jpeg,png,gif|max:2048',
             'status'=> 'required|in:Active,Archived',
             'parent_id' => 'nullable|exists:categories,id',
         ];

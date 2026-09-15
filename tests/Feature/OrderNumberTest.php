@@ -6,11 +6,11 @@ use App\Models\Store;
 test('order numbers remain unique and preserve the year sequence format', function () {
     $store = Store::factory()->create();
 
-    $first = Order::create([
+    $first = Order::forceCreate([
         'store_id' => $store->id,
         'payment_method' => 'cod',
     ]);
-    $second = Order::create([
+    $second = Order::forceCreate([
         'store_id' => $store->id,
         'payment_method' => 'cod',
     ]);

@@ -37,7 +37,7 @@ class ProductRequest extends FormRequest
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'description' => 'nullable|string',
-            'image' => [$this->isMethod('post') ? 'required' : 'nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'image' => [$this->isMethod('post') ? 'required' : 'nullable', 'image', 'mimetypes:image/jpeg,image/png,image/gif', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
             'options' => 'nullable|json',
             'price' => 'required|numeric|min:0',
             'rating' => 'nullable|numeric|min:0|max:5',

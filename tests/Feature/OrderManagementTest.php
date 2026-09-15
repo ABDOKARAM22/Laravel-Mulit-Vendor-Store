@@ -25,7 +25,7 @@ beforeEach(function () {
 
 function makeOrder(Store $store, ?int $userId = null, string $status = 'pending'): Order
 {
-    return Order::create([
+    return Order::forceCreate([
         'store_id' => $store->id,
         'user_id' => $userId,
         'payment_method' => 'cod',

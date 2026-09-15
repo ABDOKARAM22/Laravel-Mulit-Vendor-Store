@@ -52,9 +52,7 @@ class CheckoutController extends Controller
                         fn ($item) => $this->moneyToCents($item['product']->price) * $item['cartItem']->quantity
                     );
 
-                    $order = Order::create([
-                        'store_id' => $storeId,
-                        'user_id' => $request->user('web')?->id,
+                    $order = new Order([
                         'payment_method' => 'cod',
                         'shipping' => 0,
                         'tax' => 0,
@@ -62,6 +60,9 @@ class CheckoutController extends Controller
                         'subtotal' => $totalCents / 100,
                         'total' => $totalCents / 100,
                     ]);
+                    $order->store_id = $storeId;
+                    $order->user_id = $request->user('web')?->id;
+                    $order->save();
 
                     foreach ($storeItems as $item) {
                         $product = $item['product'];

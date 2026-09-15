@@ -34,8 +34,6 @@ class Order extends Model
     ];
 
     protected $fillable = [
-        'store_id',
-        'user_id',
         'number',
         'payment_method',
         'status',

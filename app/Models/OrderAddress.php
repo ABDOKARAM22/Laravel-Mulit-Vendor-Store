@@ -11,7 +11,7 @@ class OrderAddress extends Model
     use HasFactory;
 
     protected $fillable = [
-        'order_id','type','email','first_name','last_name','phone_number',
+        'type','email','first_name','last_name','phone_number',
         'country','city','state','street_address','postal_code'
     ];
 

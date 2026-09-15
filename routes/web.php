@@ -14,7 +14,7 @@ Route::get('/', [HomeController::class,'index'])->name('home');
 Route::get('/products', [ProductsController::class,'index'])->name('products.index');
 Route::get('/products/{product:slug}', [ProductsController::class,'show'])->name('products.show');
 
-Route::resource('/cart',CartController::class);
+Route::resource('/cart', CartController::class)->only(['index', 'store', 'update', 'destroy']);
 
 Route::get('/cheackout',[CheckoutController::class,'create'])->name('checkout');
 Route::post('/cheackout',[CheckoutController::class,'store'])->name('checkout');

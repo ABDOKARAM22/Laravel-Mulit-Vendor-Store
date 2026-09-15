@@ -12,7 +12,7 @@ class Profile extends Model
     use HasFactory;
 
     protected $fillable = 
-    ['user_id','first_name','last_name','phone_number','birthday','gender',
+    ['first_name','last_name','phone_number','birthday','gender',
     'city','country','street_address','language','postal_code','image'];
 
     public static function ProfileValidate()
@@ -21,7 +21,7 @@ class Profile extends Model
     return [
         'first_name' => 'required|string|max:255',
         'last_name' => 'required|string|max:255',
-        'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+        'image' => 'nullable|image|mimetypes:image/jpeg,image/png,image/gif|mimes:jpg,jpeg,png,gif|max:2048',
         'phone_number' => [
         'nullable',
         'string',
