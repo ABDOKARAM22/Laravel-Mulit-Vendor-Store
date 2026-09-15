@@ -35,7 +35,7 @@ class CartModelRepository implements CartRepository{
 
             $cart = Cart::create([
                 'cookie_id' => Cart::get_cookie_id(),
-                'user_id' => Auth::id(),
+                'user_id' => Auth::guard('web')->id(),
                 'product_id' => $product->id,
                 'quantity' => $quantity
             ]);

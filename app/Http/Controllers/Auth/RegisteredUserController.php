@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Cart;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
@@ -44,6 +45,7 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
 
         Auth::login($user);
+        Cart::claimGuestCartForUser($user->id);
 
         return redirect(route('home', absolute: false));
     }

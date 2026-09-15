@@ -13,7 +13,8 @@ use App\Services\MediaUploader;
 class ProfileController extends Controller
 {
     public function edit(){
-        $user = Auth::user();
+        $user = Auth::guard('admin')->user();
+        $user->load('profile');
         return view('dashboard.profile.edit',[
             'user'=>$user,
             'countries' => Countries::getNames(),
@@ -23,22 +24,24 @@ class ProfileController extends Controller
 
     public function update(Request $request, MediaUploader $media)
     {
-        $validatedData = $request->validate(Profile::ProfileValidate());
+        $admin = $request->user('admin');
+        $profile = $admin->profile()->firstOrNew();
+        $validatedData = $request->validate(Profile::ProfileValidate($profile));
     
-        $user = $request->user();
-        
         if ($request->hasFile('image')) {
     
             $imagePath = $media->store($request->file('image'), 'profile_images');
     
-            if ($user->profile->image) {
-                $media->delete($user->profile->image);
+            if ($profile->image) {
+                $media->delete($profile->image);
             }
     
             $validatedData['image'] = $imagePath;
         }
     
-        $user->profile->fill($validatedData)->save();
+        $profile->fill($validatedData);
+        $profile->admin_id = $admin->id;
+        $profile->save();
     
         return redirect()->route('dashboard.profile.edit')->with('success', 'Profile Updated Successfully.');
     }

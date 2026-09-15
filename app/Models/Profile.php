@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class Profile extends Model
@@ -15,9 +14,9 @@ class Profile extends Model
     ['first_name','last_name','phone_number','birthday','gender',
     'city','country','street_address','language','postal_code','image'];
 
-    public static function ProfileValidate()
+    public static function ProfileValidate(?Profile $profile = null): array
 {
-    $id = Auth::user()->profile->id;
+    $id = $profile?->id;
     return [
         'first_name' => 'required|string|max:255',
         'last_name' => 'required|string|max:255',
@@ -40,6 +39,11 @@ class Profile extends Model
 
     public function user(){
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function admin()
+    {
+        return $this->belongsTo(Admin::class, 'admin_id', 'id');
     }
 
     

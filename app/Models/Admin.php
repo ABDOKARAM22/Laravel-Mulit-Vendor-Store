@@ -57,6 +57,11 @@ class Admin extends Authenticatable
         return $this->belongsTo(Store::class);
     }
 
+    public function profile()
+    {
+        return $this->hasOne(Profile::class, 'admin_id')->withDefault();
+    }
+
     public function isSuperAdmin(): bool
     {
         return $this->role === self::ROLE_SUPER_ADMIN;

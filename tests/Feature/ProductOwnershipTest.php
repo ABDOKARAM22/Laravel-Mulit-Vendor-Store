@@ -106,6 +106,24 @@ test('vendor cannot restore or force delete another store soft deleted product',
     expect(Product::withTrashed()->find($this->productB->id))->not->toBeNull();
 });
 
+test('authorized product force delete removes the record and media', function () {
+    $product = Product::factory()->create([
+        'store_id' => $this->storeA->id,
+        'category_id' => $this->category->id,
+        'image' => 'products/deleted-product.jpg',
+    ]);
+    Storage::fake('uploads');
+    Storage::disk('uploads')->put($product->image, 'image');
+    $product->delete();
+
+    $this->actingAs($this->vendorA, 'admin')
+        ->delete(route('dashboard.products.forcedelete', $product->id))
+        ->assertRedirect(route('dashboard.products.trash'));
+
+    expect(Product::withTrashed()->find($product->id))->toBeNull()
+        ->and(Storage::disk('uploads')->exists('products/deleted-product.jpg'))->toBeFalse();
+});
+
 test('vendor product creation derives store ownership from the authenticated vendor', function () {
     $this->actingAs($this->vendorA, 'admin')
         ->post(route('dashboard.products.store'), [

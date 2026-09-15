@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -42,8 +43,31 @@ class Cart extends Model
 
 
         static::addGlobalScope('cookie_id',function(Builder $builder){
-                $builder->where('cookie_id' , '=' , Cart::get_cookie_id());
+                $builder->where('cookie_id', Cart::get_cookie_id());
+
+                $user = Auth::guard('web')->user();
+                if ($user) {
+                    $builder->where('user_id', $user->id);
+                }
         });
+    }
+
+    public static function claimGuestCartForUser(int $userId): void
+    {
+        $cookieId = static::get_cookie_id();
+
+        static::withoutGlobalScopes()
+            ->where('cookie_id', $cookieId)
+            ->whereNull('user_id')
+            ->update(['user_id' => $userId]);
+    }
+
+    public static function releaseCartForGuest(): void
+    {
+        static::withoutGlobalScopes()
+            ->where('cookie_id', static::get_cookie_id())
+            ->where('user_id', Auth::guard('web')->id())
+            ->update(['user_id' => null]);
     }
 
     public function user()  {

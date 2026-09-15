@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Cart;
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
@@ -26,6 +27,7 @@ class AuthenticatedSessionController extends Controller
     {
         // Authenticate the user using the 'web' guard
         $request->authenticate('web');
+        Cart::claimGuestCartForUser($request->user('web')->id);
 
         // Regenerate the session to prevent session fixation attacks
         $request->session()->regenerate();
@@ -39,6 +41,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        Cart::releaseCartForGuest();
         // Log out the user from the 'web' guard
         Auth::guard('web')->logout();
 

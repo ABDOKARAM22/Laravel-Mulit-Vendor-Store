@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Models\Admin;
 
 test('profile page is displayed', function () {
     $user = User::factory()->create();
@@ -82,4 +83,30 @@ test('correct password must be provided to delete account', function () {
         ->assertRedirect('/profile');
 
     $this->assertNotNull($user->fresh());
+});
+
+test('dashboard profiles use the admin guard and shared admin profile relation', function () {
+    $admin = Admin::factory()->create(['role' => Admin::ROLE_ADMIN]);
+
+    $this->actingAs($admin, 'admin')
+        ->get(route('dashboard.profile.edit'))
+        ->assertOk();
+
+    $this->actingAs($admin, 'admin')
+        ->patch(route('dashboard.profile.update'), [
+            'first_name' => 'Platform',
+            'last_name' => 'Admin',
+            'phone_number' => '123456789',
+            'birthday' => '1990-01-01',
+            'gender' => 'female',
+            'street_address' => '1 Main Street',
+            'city' => 'New York',
+            'postal_code' => '10001',
+            'country' => 'US',
+            'language' => 'en',
+        ])
+        ->assertRedirect(route('dashboard.profile.edit'));
+
+    expect($admin->fresh()->profile->admin_id)->toBe($admin->id)
+        ->and($admin->fresh()->profile->user_id)->toBeNull();
 });

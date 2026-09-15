@@ -100,6 +100,23 @@ test('status transitions are enforced for vendors', function () {
         ->assertForbidden();
 });
 
+test('super admins retain global access but cannot bypass status transitions', function () {
+    $superAdmin = Admin::factory()->create(['role' => Admin::ROLE_SUPER_ADMIN]);
+    $order = makeOrder($this->storeB, $this->customerB->id);
+
+    $this->actingAs($superAdmin, 'admin')
+        ->patch(route('dashboard.orders.status', $order), ['status' => 'completed'])
+        ->assertForbidden();
+
+    expect($order->fresh()->status)->toBe('pending');
+
+    $this->actingAs($superAdmin, 'admin')
+        ->patch(route('dashboard.orders.status', $order), ['status' => 'processing'])
+        ->assertRedirect();
+
+    expect($order->fresh()->status)->toBe('processing');
+});
+
 test('vendors cannot update another stores order status', function () {
     $order = makeOrder($this->storeB, $this->customerB->id);
 

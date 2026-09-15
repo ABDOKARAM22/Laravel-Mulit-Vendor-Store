@@ -147,7 +147,7 @@ class ProductsController extends Controller
     }
 
 
-    public function forcedelete(string $id, Request $request){
+    public function forcedelete(string $id, Request $request, MediaUploader $media){
 
         $product = Product::onlyTrashed()->findOrFail($id);
         Gate::forUser($request->user('admin'))->authorize('forceDelete', $product);

@@ -245,3 +245,68 @@ test('cart updates and deletes remain scoped to the current cart cookie', functi
 
     expect(Cart::withoutGlobalScopes()->find($cartId)->quantity)->toBe(1);
 });
+
+test('authenticated carts require both the current cookie and user ownership', function () {
+    $customerA = User::factory()->create();
+    $customerB = User::factory()->create();
+    $product = Product::factory()->create([
+        'store_id' => $this->storeA->id,
+        'category_id' => $this->category->id,
+        'status' => 'Active',
+    ]);
+    $cookieA = (string) Str::uuid();
+    $cartId = (string) Str::uuid();
+
+    Cart::withoutGlobalScopes()->insert([
+        'id' => $cartId,
+        'cookie_id' => $cookieA,
+        'user_id' => $customerA->id,
+        'product_id' => $product->id,
+        'quantity' => 1,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $this->actingAs($customerB, 'web')
+        ->withCookie('cart_id', $cookieA)
+        ->get(route('cart.index'))
+        ->assertOk()
+        ->assertDontSee($product->name);
+
+    $this->actingAs($customerB, 'web')
+        ->withCookie('cart_id', $cookieA)
+        ->delete(route('cart.destroy', $cartId))
+        ->assertNotFound();
+
+    expect(Cart::withoutGlobalScopes()->find($cartId)->quantity)->toBe(1);
+});
+
+test('guest cart is claimed by the authenticated user on login', function () {
+    $customer = User::factory()->create(['password' => bcrypt('password')]);
+    $product = Product::factory()->create([
+        'store_id' => $this->storeA->id,
+        'category_id' => $this->category->id,
+        'status' => 'Active',
+    ]);
+    $cookieId = (string) Str::uuid();
+    $cartId = (string) Str::uuid();
+
+    Cart::withoutGlobalScopes()->insert([
+        'id' => $cartId,
+        'cookie_id' => $cookieId,
+        'user_id' => null,
+        'product_id' => $product->id,
+        'quantity' => 1,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $this->withCookie('cart_id', $cookieId)
+        ->post(route('login'), [
+            'email' => $customer->email,
+            'password' => 'password',
+        ])
+        ->assertRedirect();
+
+    expect(Cart::withoutGlobalScopes()->find($cartId)->user_id)->toBe($customer->id);
+});
