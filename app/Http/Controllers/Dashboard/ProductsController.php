@@ -11,7 +11,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\ProductRequest;
-use Illuminate\Support\Facades\Storage;
+use App\Services\MediaUploader;
 
 class ProductsController extends Controller
 {
@@ -47,14 +47,14 @@ class ProductsController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(ProductRequest $request)
+    public function store(ProductRequest $request, MediaUploader $media)
     {
         $admin = $request->user('admin');
         Gate::forUser($admin)->authorize('create', Product::class);
 
         $data = $request->safe()->except(['tag', 'image', 'slug', 'store_id']);
         $data['slug'] = $this->uniqueSlug($request->string('name')->toString());
-        $data ['image'] = $this->upload_image($request);
+        $data['image'] = $this->storeImage($request, $media);
 
         $product = new Product($data);
         $product->store_id = $admin->store_id;
@@ -89,14 +89,14 @@ class ProductsController extends Controller
     }
      
     
-    public function update(ProductRequest $request, Product $product)
+    public function update(ProductRequest $request, Product $product, MediaUploader $media)
     {
         Gate::forUser($request->user('admin'))->authorize('update', $product);
         $old_image = $product->image; 
         $data = $request->safe()->except(['tag', 'image', 'slug', 'store_id']);
         $data['slug'] = $this->uniqueSlug($request->string('name')->toString(), $product);
 
-        $new_image = $this->upload_image($request);
+        $new_image = $this->storeImage($request, $media);
       
         if ($new_image) {
             $data['image'] = $new_image;
@@ -109,7 +109,7 @@ class ProductsController extends Controller
         $product->save();
 
         if (isset($data['image']) && isset($old_image)) {
-            Storage::disk('uploads')->delete($old_image);
+            $media->delete($old_image);
         }
 
 
@@ -157,7 +157,7 @@ class ProductsController extends Controller
         $product->forceDelete();
 
         if($image) {
-            Storage::disk("uploads")->delete($image);
+            $media->delete($image);
         }
 
         return redirect()->route("dashboard.products.trash")->with("success", "Product Deleted Forever Sucsefully.");
@@ -191,18 +191,13 @@ class ProductsController extends Controller
     }
 
     
-    protected function upload_image(Request $request)
+    protected function storeImage(Request $request, MediaUploader $media): ?string
     {
-
-        if (!$request->hasFile("image")) {
-            return;
+        if (! $request->hasFile('image')) {
+            return null;
         }
 
-        $image = $request->file("image");
-
-        $path = $image->store("products", ['disk' => 'uploads']);
-
-        return $path;
+        return $media->store($request->file('image'), 'products');
     }
 
     protected function uniqueSlug(string $name, ?Product $product = null): string

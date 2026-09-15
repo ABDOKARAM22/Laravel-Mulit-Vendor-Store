@@ -6,7 +6,7 @@ use App\Models\Category;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Storage;
+use App\Services\MediaUploader;
 
 class CategoriesController extends Controller
 {
@@ -26,7 +26,7 @@ class CategoriesController extends Controller
         return view("Dashboard.categories.create", compact("parent_category"));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, MediaUploader $media)
     {
         // Inputs validation
         $request->validate(Category::CategoriesVlaidate());
@@ -38,7 +38,7 @@ class CategoriesController extends Controller
 
         // Except the image field from the request to put the new path
         $data = $request->except('image');
-        $data['image'] = $this->upload_image($request);
+        $data['image'] = $this->storeImage($request, $media);
 
 
         Category::create($data);
@@ -60,7 +60,7 @@ class CategoriesController extends Controller
         return view("Dashboard.categories.edit", compact("category", "parent_category"));
     }
 
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id, MediaUploader $media)
     {
         $category = Category::findOrFail($id);
         $old_image = $category->image;
@@ -69,7 +69,7 @@ class CategoriesController extends Controller
 
         // Except the image field from the request to put the new path
         $data = $request->except('image');
-        $new_image = $this->upload_image($request);
+        $new_image = $this->storeImage($request, $media);
 
         if ($new_image) {
             $data['image'] = $new_image;
@@ -78,7 +78,7 @@ class CategoriesController extends Controller
         $category->update($data);
 
         if (isset($data['image']) && isset($old_image)) {
-            Storage::disk('uploads')->delete($old_image);
+            $media->delete($old_image);
         }
 
         return redirect()->route("dashboard.categories.index")->with("success", "Category Updated Sucsefully.");
@@ -114,7 +114,7 @@ class CategoriesController extends Controller
         $category->forceDelete();
 
         if($image) {
-            Storage::disk("uploads")->delete($image);
+            $media->delete($image);
         }
 
         return redirect()->route("dashboard.categories.trash")->with("success", "Category Deleted Forever Sucsefully.");
@@ -122,17 +122,12 @@ class CategoriesController extends Controller
 
     }
 
-    protected function upload_image(Request $request)
+    protected function storeImage(Request $request, MediaUploader $media): ?string
     {
-
-        if (!$request->hasFile("image")) {
-            return;
+        if (! $request->hasFile('image')) {
+            return null;
         }
 
-        $image = $request->file("image");
-
-        $path = $image->store("categories", ['disk' => 'uploads']);
-
-        return $path;
+        return $media->store($request->file('image'), 'categories');
     }
 }

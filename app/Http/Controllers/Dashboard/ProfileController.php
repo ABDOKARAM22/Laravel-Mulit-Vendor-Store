@@ -6,9 +6,9 @@ use App\Models\Profile;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Intl\Languages;
 use Symfony\Component\Intl\Countries;
+use App\Services\MediaUploader;
 
 class ProfileController extends Controller
 {
@@ -21,7 +21,7 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function update(Request $request)
+    public function update(Request $request, MediaUploader $media)
     {
         $validatedData = $request->validate(Profile::ProfileValidate());
     
@@ -29,10 +29,10 @@ class ProfileController extends Controller
         
         if ($request->hasFile('image')) {
     
-            $imagePath = $request->file('image')->store('profile_images', 'uploads');
+            $imagePath = $media->store($request->file('image'), 'profile_images');
     
             if ($user->profile->image) {
-                Storage::disk('uploads')->delete($user->profile->image);
+                $media->delete($user->profile->image);
             }
     
             $validatedData['image'] = $imagePath;
