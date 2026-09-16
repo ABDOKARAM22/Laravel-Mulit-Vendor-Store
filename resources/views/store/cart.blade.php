@@ -85,8 +85,8 @@
                                     <div class="cart-summary">
                                         <div class="cart-content">
                                             <h1>Cart Summary</h1>
-                                            <p>Sub Total<span>$99</span></p>
-                                            <p>Shipping Cost<span>$1</span></p>
+                                            <p>Sub Total<span>{{ Currency::format($cart->total()) }}</span></p>
+                                            <p>Shipping Cost<span>{{ Currency::format(0) }}</span></p>
                                             <h2>Grand Total<span>{{ Currency::format($cart->total()) }}</span></h2>
                                         </div>
                                         <div class="cart-btn">

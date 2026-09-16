@@ -126,22 +126,22 @@
                         <div class="checkout-summary">
                             <h1>Cart Total</h1>
                             <p class="sub-total">Sub Total<span>{{ Currency::format($cart->total()) }}</span></p>
-                            <p class="ship-cost">Shipping Cost<span>$1</span></p>
-                            <p>Tax<span>$99</span></p>
-                            <h2>Grand Total<span>$100</span></h2>
+                            <p class="ship-cost">Shipping Cost<span>{{ Currency::format(0) }}</span></p>
+                            <p>Tax<span>{{ Currency::format(0) }}</span></p>
+                            <h2>Grand Total<span>{{ Currency::format($cart->total()) }}</span></h2>
                         </div>
 
                         <div class="checkout-payment">
                             <div class="payment-methods">
                                 <h1>Payment Methods</h1>
-                                @foreach(['Paypal', 'Payoneer', 'Check Payment', 'Direct Bank Transfer', 'Cash on Delivery'] as $index => $method)
+                                @foreach(['Cash on Delivery'] as $index => $method)
                                     <div class="payment-method">
                                         <div class="custom-control custom-radio">
                                             <input type="radio" class="custom-control-input" id="payment-{{ $index + 1 }}" name="payment" value="{{ $method }}">
                                             <label class="custom-control-label" for="payment-{{ $index + 1 }}">{{ $method }}</label>
                                         </div>
                                         <div class="payment-content" id="payment-{{ $index + 1 }}-show">
-                                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                                            <p>Pay when your order is delivered.</p>
                                         </div>
                                     </div>
                                 @endforeach

@@ -55,7 +55,7 @@
                         <div class="col-md-4">
                             <div class="product-item">
                                 <div class="product-title">
-                                    <a href="#">{{ $product->name }}</a>
+                                    <a href="{{ route('products.show', $product->slug) }}">{{ $product->name }}</a>
                                     <div class="ratting">
                                         <i class="fa fa-star"></i>
                                         <i class="fa fa-star"></i>
@@ -64,7 +64,7 @@
                                     </div>
                                 </div>
                                 <div class="product-image">
-                                    <a href="product-detail.html">
+                                    <a href="{{ route('products.show', $product->slug) }}">
                                         <img src="{{ $product->image }}" alt="Product Image">
                                     </a>
                                     <div class="product-action">
