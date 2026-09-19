@@ -32,10 +32,15 @@ class OrdersController extends Controller
 
         return view('Dashboard.orders.show', compact('order'));
     }
-
+    
     public function updateStatus(OrderStatusRequest $request, Order $order)
     {
-        $order->update(['status' => $request->validated('status')]);
+        $admin = $request->user('admin');
+        $status = $request->validated('status');
+
+        Gate::forUser($admin)->authorize('updateStatus', [$order, $status]);
+
+        $order->update(['status' => $status]);
 
         return back()->with('success', 'Order status updated successfully.');
     }

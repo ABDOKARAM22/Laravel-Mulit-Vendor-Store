@@ -1,129 +1,269 @@
+@php
+    $admin = auth('admin')->user();
 
-  <!-- Main Sidebar Container -->
-  <aside class="main-sidebar sidebar-dark-primary elevation-4">
-    <!-- Brand Logo -->
-    <a href="index3.html" class="brand-link">
-      <img src="{{asset('dist/img/AdminLTELogo.png')}}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
-      <span class="brand-text font-weight-light">AdminLTE 3</span>
+    $canManageCategories =
+        $admin->isAdmin() ||
+        $admin->isSuperAdmin();
+
+    $canViewProducts =
+        $admin->can('viewAny', \App\Models\Product::class);
+
+    $canCreateProducts =
+        $admin->can('create', \App\Models\Product::class);
+@endphp
+
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+
+    <!-- Brand -->
+    <a href="{{ route('dashboard.index') }}"
+       class="brand-link">
+
+        <span class="brand-text font-weight-light">
+            Multi Vendor Store
+        </span>
+
     </a>
 
     <!-- Sidebar -->
     <div class="sidebar">
-      <!-- Sidebar user panel (optional) -->
-      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        <div class="image">
-          <img src="{{asset('dist/img/user2-160x160.jpg')}}" class="img-circle elevation-2" alt="User Image">
-        </div>
-        <div class="info">
-          <a href="{{ route('dashboard.profile.edit') }}" class="d-block">{{Auth::guard('admin')->user()->name}}</a>
-         @auth('admin')
-         <form action="{{ route('dashboard.logout') }}" method="post">
-          @csrf
-           <input type="submit" value="Log Out" class="btn btn-sm btn-outline-primary"/>
-         </form>
-         @endauth
-        </div>
-      </div>
 
-      <!-- SidebarSearch Form -->
-      <div class="form-inline">
-        <div class="input-group" data-widget="sidebar-search">
-          <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
-          <div class="input-group-append">
-            <button class="btn btn-sidebar">
-              <i class="fas fa-search fa-fw"></i>
-            </button>
-          </div>
+        <!-- Admin Profile -->
+        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+
+            <div class="image">
+                <div class="img-circle elevation-2 d-flex align-items-center justify-content-center bg-secondary"
+                     style="width: 34px; height: 34px;">
+
+                    <i class="fas fa-user text-white"></i>
+
+                </div>
+            </div>
+
+            <div class="info">
+                <a href="{{ route('dashboard.profile.edit') }}"
+                   class="d-block">
+
+                    {{ $admin->name }}
+
+                </a>
+
+                <small class="text-muted">
+                    {{ $admin->role }}
+                </small>
+            </div>
+
         </div>
-      </div>
 
-      <!-- Sidebar Menu -->
-      <nav class="mt-2">
-        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-          <!-- Add icons to the links using the .nav-icon class
-               with font-awesome or any other icon font library -->
-              
-               
-          <li class="nav-item">
-            <a href="pages/widgets.html" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Widgets
-                <span class="right badge badge-danger">New</span>
-              </p>
-            </a>
-          </li>
+        <!-- Navigation -->
+        <nav class="mt-2">
 
-          {{-- Catigories --}}
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-copy"></i>
-              <p>
-              Categories
-                <i class="fas fa-angle-left right"></i>
-                <span class="badge badge-info right">6</span>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="{{route('dashboard.categories.index')}}" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>All Categories</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="{{ route('dashboard.categories.create')}}" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Add New Category</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="{{ route('dashboard.categories.trash')}}" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Trashed</p>
-                </a>
-              </li>
+            <ul class="nav nav-pills nav-sidebar flex-column"
+                data-widget="treeview"
+                role="menu"
+                data-accordion="false">
+
+                <!-- Dashboard -->
+                <li class="nav-item">
+
+                    <a href="{{ route('dashboard.index') }}"
+                       class="nav-link {{ request()->routeIs('dashboard.index') ? 'active' : '' }}">
+
+                        <i class="nav-icon fas fa-tachometer-alt"></i>
+
+                        <p>
+                            Dashboard
+                        </p>
+
+                    </a>
+
+                </li>
+
+                <!-- Products -->
+                @if ($canViewProducts)
+
+                    <li class="nav-item {{ request()->routeIs('dashboard.products.*') ? 'menu-open' : '' }}">
+
+                        <a href="#"
+                           class="nav-link {{ request()->routeIs('dashboard.products.*') ? 'active' : '' }}">
+
+                            <i class="nav-icon fas fa-box"></i>
+
+                            <p>
+                                Products
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+
+                        </a>
+
+                        <ul class="nav nav-treeview">
+
+                            <!-- All Products -->
+                            <li class="nav-item">
+
+                                <a href="{{ route('dashboard.products.index') }}"
+                                   class="nav-link {{ request()->routeIs('dashboard.products.index') ? 'active' : '' }}">
+
+                                    <i class="far fa-circle nav-icon"></i>
+
+                                    <p>
+                                        All Products
+                                    </p>
+
+                                </a>
+
+                            </li>
+
+                            <!-- Add Product -->
+                            @if ($canCreateProducts)
+
+                                <li class="nav-item">
+
+                                    <a href="{{ route('dashboard.products.create') }}"
+                                       class="nav-link {{ request()->routeIs('dashboard.products.create') ? 'active' : '' }}">
+
+                                        <i class="far fa-circle nav-icon"></i>
+
+                                        <p>
+                                            Add Product
+                                        </p>
+
+                                    </a>
+
+                                </li>
+
+                            @endif
+
+                            <!-- Trashed Products -->
+                            <li class="nav-item">
+
+                                <a href="{{ route('dashboard.products.trash') }}"
+                                   class="nav-link {{ request()->routeIs('dashboard.products.trash') ? 'active' : '' }}">
+
+                                    <i class="far fa-circle nav-icon"></i>
+
+                                    <p>
+                                        Trash
+                                    </p>
+
+                                </a>
+
+                            </li>
+
+                        </ul>
+
+                    </li>
+
+                @endif
+
+                <!-- Categories -->
+                @if ($canManageCategories)
+
+                    <li class="nav-item {{ request()->routeIs('dashboard.categories.*') ? 'menu-open' : '' }}">
+
+                        <a href="#"
+                           class="nav-link {{ request()->routeIs('dashboard.categories.*') ? 'active' : '' }}">
+
+                            <i class="nav-icon fas fa-tags"></i>
+
+                            <p>
+                                Categories
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+
+                        </a>
+
+                        <ul class="nav nav-treeview">
+
+                            <!-- All Categories -->
+                            <li class="nav-item">
+
+                                <a href="{{ route('dashboard.categories.index') }}"
+                                   class="nav-link {{ request()->routeIs('dashboard.categories.index') ? 'active' : '' }}">
+
+                                    <i class="far fa-circle nav-icon"></i>
+
+                                    <p>
+                                        All Categories
+                                    </p>
+
+                                </a>
+
+                            </li>
+
+                            <!-- Add Category -->
+                            <li class="nav-item">
+
+                                <a href="{{ route('dashboard.categories.create') }}"
+                                   class="nav-link {{ request()->routeIs('dashboard.categories.create') ? 'active' : '' }}">
+
+                                    <i class="far fa-circle nav-icon"></i>
+
+                                    <p>
+                                        Add Category
+                                    </p>
+
+                                </a>
+
+                            </li>
+
+                            <!-- Trashed Categories -->
+                            <li class="nav-item">
+
+                                <a href="{{ route('dashboard.categories.trash') }}"
+                                   class="nav-link {{ request()->routeIs('dashboard.categories.trash') ? 'active' : '' }}">
+
+                                    <i class="far fa-circle nav-icon"></i>
+
+                                    <p>
+                                        Trash
+                                    </p>
+
+                                </a>
+
+                            </li>
+
+                        </ul>
+
+                    </li>
+
+                @endif
+
+                <!-- Orders -->
+                <li class="nav-item">
+
+                    <a href="{{ route('dashboard.orders.index') }}"
+                       class="nav-link {{ request()->routeIs('dashboard.orders.*') ? 'active' : '' }}">
+
+                        <i class="nav-icon fas fa-shopping-cart"></i>
+
+                        <p>
+                            Orders
+                        </p>
+
+                    </a>
+
+                </li>
+
+                <!-- Profile -->
+                <li class="nav-item">
+
+                    <a href="{{ route('dashboard.profile.edit') }}"
+                       class="nav-link {{ request()->routeIs('dashboard.profile.*') ? 'active' : '' }}">
+
+                        <i class="nav-icon fas fa-user"></i>
+
+                        <p>
+                            Profile
+                        </p>
+
+                    </a>
+
+                </li>
+
             </ul>
-          </li>
-          
-          {{-- Products  --}}
-          
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-copy"></i>
-              <p>
-              Products
-                <i class="fas fa-angle-left right"></i>
-                <span class="badge badge-info right">6</span>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="{{route('dashboard.products.index')}}" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>All Products</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="{{ route('dashboard.products.create')}}" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Add New Product</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="{{ route('dashboard.products.trash')}}" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Trashed</p>
-                </a>
-              </li>
-            </ul>
-          </li>
 
-          <li class="nav-header">EXAMPLES</li>
+        </nav>
 
-        </ul>
-      </nav>
-      <!-- /.sidebar-menu -->
     </div>
-    <!-- /.sidebar -->
-  </aside>
+
+</aside>
