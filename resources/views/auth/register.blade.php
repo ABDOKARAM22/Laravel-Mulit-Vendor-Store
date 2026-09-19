@@ -51,7 +51,7 @@
                                            type="password" placeholder="Confirm Password" 
                                            name="password_confirmation" required>
                                 </div>
-                                <div class="col-md-12 mt-3">
+                                {{-- <div class="col-md-12 mt-3">
                                     <div class="custom-control custom-checkbox">
                                         <input type="checkbox" class="custom-control-input @error('terms') is-invalid @enderror" 
                                                id="terms" name="terms" required>
@@ -62,7 +62,8 @@
                                             <span class="text-danger">{{ $message }}</span>
                                         @enderror
                                     </div>
-                                </div>
+                                </div> --}}
+                                
                                 <div class="col-md-12 text-center mt-3">
                                     <button class="btn btn-primary w-100" type="submit">Sign Up</button>
                                 </div>

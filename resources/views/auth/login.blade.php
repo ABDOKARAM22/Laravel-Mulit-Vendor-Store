@@ -21,7 +21,7 @@
                                 <div class="col-md-6">
                                     <label for="email">E-mail</label>
                                     <input id="email" class="form-control @error('email') is-invalid @enderror" 
-                                           type="text" placeholder="E-mail" 
+                                           type="email" placeholder="E-mail" 
                                            name="email" value="{{ old('email') }}" required>
                                     @error('email')
                                         <span class="text-danger">{{ $message }}</span>
