@@ -14,7 +14,13 @@
                         <div class="cart-page-inner">
                             <div class="table-responsive">
 
-                        <x-success_alert/>
+                                <x-success_alert/>
+
+                                @if (session('error'))
+                                    <div class="alert alert-danger">
+                                        {{ session('error') }}
+                                    </div>
+                                @endif
                         
                                 <table class="table table-bordered">
                                     <thead class="thead-dark">
@@ -27,43 +33,57 @@
                                         </tr>
                                     </thead>
                                     <tbody class="align-middle">
-                                        @forelse ( $cart->get() as $item )
+                                        @forelse ($cart->get() as $item)
                                         <tr>
                                             <td>
                                                 <div class="img">
-                                                    <a href="{{ route('products.show',$item->product->slug) }}"><img src="{{Handel_image::show_image($item->product->image)}}" alt="Image"></a>
-                                                    <p>{{ $item->product->name }} </p>
+                                                    <a href="{{ route('products.show',$item->product->slug) }}">
+                                                        <img src="{{ Handel_image::show_image($item->product->image) }}" alt="Image">
+                                                    </a>
+                                                    <p>{{ $item->product->name }}</p>
                                                 </div>
                                             </td>
+
                                             <td>{{ Currency::format($item->product->price) }}</td>
+
                                             <td>
                                                 <form method="POST" action="{{ route('cart.update', $item->id) }}">
                                                     @method('PUT')
                                                     @csrf
-                                                    <input type="hidden" name="quantity" class="quantity" value="{{ $item->quantity }}">
-                                                    <input type="hidden" name="product_id" value="{{ $item->product->id }}">
+
+                                                    <input type="hidden" name="quantity" value="{{ $item->quantity }}">
+
                                                     <div class="qty">
-                                                        <button type="submit" name="action" value="minus" class="btn-minus"><i class="fa fa-minus"></i></button>
+                                                        <button type="submit" name="action" value="minus" class="btn-minus">
+                                                            <i class="fa fa-minus"></i>
+                                                        </button>
+
                                                         <input type="text" class="quantity" value="{{ $item->quantity }}" readonly>
-                                                        <button type="submit" name="action" value="plus" class="btn-plus"><i class="fa fa-plus"></i></button>
+
+                                                        <button type="submit" name="action" value="plus" class="btn-plus">
+                                                            <i class="fa fa-plus"></i>
+                                                        </button>
                                                     </div>
                                                 </form>
                                             </td>
-                                            
-                                             
+
                                             <td>{{ Currency::format($item->product->price * $item->quantity) }}</td>
+
                                             <td>
                                                 <form method="POST" action="{{ route('cart.destroy', $item->id) }}">
                                                     @csrf
                                                     @method('delete')
-                                                    <button type="submit" class="btn-remove"><i class="fa fa-trash"></i></button>
-                                                </form>                                                
+
+                                                    <button type="submit" class="btn-remove">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                </form>
                                             </td>
                                         </tr>
                                         @empty
-                                        
+
                                         <tr>
-                                            <td colspan="5" >No Products Added To Cart..</td>
+                                            <td colspan="5">No Products Added To Cart..</td>
                                         </tr>
 
                                         @endforelse
@@ -72,27 +92,38 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="col-lg-4">
                         <div class="cart-page-inner">
                             <div class="row">
                                 <div class="col-md-12">
-                                    <div class="coupon">
-                                        <input type="text" placeholder="Coupon Code">
-                                        <button>Apply Code</button>
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
                                     <div class="cart-summary">
                                         <div class="cart-content">
                                             <h1>Cart Summary</h1>
-                                            <p>Sub Total<span>{{ Currency::format($cart->total()) }}</span></p>
-                                            <p>Shipping Cost<span>{{ Currency::format(0) }}</span></p>
-                                            <h2>Grand Total<span>{{ Currency::format($cart->total()) }}</span></h2>
+
+                                            <p>
+                                                Sub Total
+                                                <span>{{ Currency::format($cart->total()) }}</span>
+                                            </p>
+
+                                            <p>
+                                                Shipping Cost
+                                                <span>{{ Currency::format(0) }}</span>
+                                            </p>
+
+                                            <h2>
+                                                Grand Total
+                                                <span>{{ Currency::format($cart->total()) }}</span>
+                                            </h2>
                                         </div>
-                                        <div class="cart-btn">
-                                            <button>Update Cart</button>
-                                            <button onclick="window.location.href='{{ route('checkout') }}'">Checkout</button>
-                                        </div>
+
+                                        @if ($cart->get()->isNotEmpty())
+                                            <div class="cart-btn">
+                                                <button onclick="window.location.href='{{ route('checkout') }}'">
+                                                    Checkout
+                                                </button>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
