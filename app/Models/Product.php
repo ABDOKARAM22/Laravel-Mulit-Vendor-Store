@@ -26,7 +26,61 @@ class Product extends Model
     {
         return $query->where('featured', true);
     }
-    
+
+
+    public function scopeSearch(Builder $query, ?string $search): Builder
+    {
+        return $query->when(
+            $search,
+            fn (Builder $query) => $query->where(function (Builder $query) use ($search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            })
+        );
+    }
+
+
+    public function scopeCategory(Builder $query, ?string $category): Builder
+    {
+        return $query->when(
+            $category,
+            fn (Builder $query) => $query->whereHas(
+                'category',
+                fn (Builder $query) => $query
+                    ->where('slug', $category)
+                    ->where('status', 'Active')
+            )
+        );
+    }
+
+
+    public function scopeTag(Builder $query, ?string $tag): Builder
+    {
+        return $query->when(
+            $tag,
+            fn (Builder $query) => $query->whereHas(
+                'tags',
+                fn (Builder $query) => $query->where('slug', $tag)
+            )
+        );
+    }
+
+    public function scopeSortBy(Builder $query, ?string $sort): Builder
+    {
+        return $query->when(
+            $sort,
+            function (Builder $query) use ($sort) {
+                match ($sort) {
+                    'newest' => $query->latest(),
+                    'price_low' => $query->orderBy('price', 'asc'),
+                    'price_high' => $query->orderBy('price', 'desc'),
+                    'featured' => $query->where('featured', true),
+                    default => $query->latest(),
+                };
+            }
+        );
+    }
+
     public function category(){
         return $this->belongsTo(Category::class,'category_id','id');
     }

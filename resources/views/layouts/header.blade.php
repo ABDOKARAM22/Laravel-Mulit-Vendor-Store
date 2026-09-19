@@ -1,6 +1,8 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
+
     <meta charset="utf-8">
 
     <title>@yield('title')</title>
@@ -34,245 +36,261 @@
 
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
 
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
 </head>
 
 <body>
 
-    <!-- Top Bar -->
-    <div class="top-bar">
-        <div class="container-fluid">
-            <div class="row">
+<!-- Top Bar -->
+<div class="top-bar">
+    <div class="container-fluid">
+        <div class="row">
 
-                <div class="col-sm-6">
-                    <i class="fa fa-envelope"></i>
-                    Customer Support
-                </div>
-
-                <div class="col-sm-6">
-                    <i class="fa fa-shopping-bag"></i>
-                    Multi-Vendor Store
-                </div>
-
+            <div class="col-sm-6">
+                <i class="fa fa-envelope"></i>
+                Customer Support
             </div>
+
+            <div class="col-sm-6">
+                <i class="fa fa-shopping-bag"></i>
+                Multi-Vendor Store
+            </div>
+
         </div>
     </div>
+</div>
 
-    <!-- Navigation -->
-    <div class="nav">
-        <div class="container-fluid">
+<!-- Navigation -->
+<div class="nav">
+    <div class="container-fluid">
 
-            <nav class="navbar navbar-expand-md bg-dark navbar-dark">
+        <nav class="navbar navbar-expand-md bg-dark navbar-dark">
 
-                <a href="{{ route('home') }}" class="navbar-brand">
-                    STORE
-                </a>
+            <a href="{{ route('home') }}" class="navbar-brand">
+                STORE
+            </a>
 
-                <button
-                    type="button"
-                    class="navbar-toggler"
-                    data-toggle="collapse"
-                    data-target="#navbarCollapse"
-                >
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+            <button
+                type="button"
+                class="navbar-toggler"
+                data-toggle="collapse"
+                data-target="#navbarCollapse"
+            >
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-                <div
-                    class="collapse navbar-collapse justify-content-between"
-                    id="navbarCollapse"
-                >
+            <div
+                class="collapse navbar-collapse justify-content-between"
+                id="navbarCollapse"
+            >
 
-                    <div class="navbar-nav mr-auto">
+                <div class="navbar-nav mr-auto">
+
+                    <a
+                        href="{{ route('home') }}"
+                        class="nav-item nav-link"
+                    >
+                        Home
+                    </a>
+
+                    <a
+                        href="{{ route('products.index') }}"
+                        class="nav-item nav-link"
+                    >
+                        Products
+                    </a>
+
+                    <a
+                        href="{{ route('cart.index') }}"
+                        class="nav-item nav-link"
+                    >
+                        Cart
+                    </a>
+
+                    <a
+                        href="{{ route('checkout') }}"
+                        class="nav-item nav-link"
+                    >
+                        Checkout
+                    </a>
+
+                    @auth('web')
 
                         <a
-                            href="{{ route('home') }}"
+                            href="{{ route('orders.index') }}"
                             class="nav-item nav-link"
                         >
-                            Home
+                            Orders
                         </a>
 
                         <a
-                            href="{{ route('products.index') }}"
+                            href="{{ route('profile.edit') }}"
                             class="nav-item nav-link"
                         >
-                            Products
+                            My Account
                         </a>
 
-                        <a
-                            href="{{ route('cart.index') }}"
-                            class="nav-item nav-link"
-                        >
-                            Cart
-                        </a>
+                    @endauth
 
-                        <a
-                            href="{{ route('checkout') }}"
-                            class="nav-item nav-link"
-                        >
-                            Checkout
-                        </a>
+                </div>
+
+                <!-- User Account -->
+                <div class="navbar-nav ml-auto">
+
+                    <div class="nav-item dropdown">
 
                         @auth('web')
-                            <a
-                                href="{{ route('orders.index') }}"
-                                class="nav-item nav-link"
-                            >
-                                Orders
-                            </a>
 
                             <a
-                                href="{{ route('profile.edit') }}"
-                                class="nav-item nav-link"
+                                href="#"
+                                class="nav-link dropdown-toggle"
+                                data-toggle="dropdown"
                             >
-                                My Account
+                                {{ auth('web')->user()->name }}
                             </a>
+
+                            <div class="dropdown-menu">
+
+                                <a
+                                    href="{{ route('profile.edit') }}"
+                                    class="dropdown-item"
+                                >
+                                    Profile
+                                </a>
+
+                                <form
+                                    action="{{ route('logout') }}"
+                                    method="POST"
+                                >
+                                    @csrf
+
+                                    <button
+                                        type="submit"
+                                        class="dropdown-item"
+                                    >
+                                        Logout
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        @else
+
+                            <a
+                                href="#"
+                                class="nav-link dropdown-toggle"
+                                data-toggle="dropdown"
+                            >
+                                User Account
+                            </a>
+
+                            <div class="dropdown-menu">
+
+                                <a
+                                    href="{{ route('login') }}"
+                                    class="dropdown-item"
+                                >
+                                    Login
+                                </a>
+
+                                <a
+                                    href="{{ route('register') }}"
+                                    class="dropdown-item"
+                                >
+                                    Register
+                                </a>
+
+                            </div>
+
                         @endauth
 
                     </div>
 
-                    <!-- User Account -->
-                    <div class="navbar-nav ml-auto">
-
-                        <div class="nav-item dropdown">
-
-                            @auth('web')
-
-                                <a
-                                    href="#"
-                                    class="nav-link dropdown-toggle"
-                                    data-toggle="dropdown"
-                                >
-                                    {{ auth('web')->user()->name }}
-                                </a>
-
-                                <div class="dropdown-menu">
-
-                                    <a
-                                        href="{{ route('profile.edit') }}"
-                                        class="dropdown-item"
-                                    >
-                                        Profile
-                                    </a>
-
-                                    <form
-                                        action="{{ route('logout') }}"
-                                        method="POST"
-                                    >
-                                        @csrf
-
-                                        <button
-                                            type="submit"
-                                            class="dropdown-item"
-                                        >
-                                            Logout
-                                        </button>
-                                    </form>
-
-                                </div>
-
-                            @else
-
-                                <a
-                                    href="#"
-                                    class="nav-link dropdown-toggle"
-                                    data-toggle="dropdown"
-                                >
-                                    User Account
-                                </a>
-
-                                <div class="dropdown-menu">
-
-                                    <a
-                                        href="{{ route('login') }}"
-                                        class="dropdown-item"
-                                    >
-                                        Login
-                                    </a>
-
-                                    <a
-                                        href="{{ route('register') }}"
-                                        class="dropdown-item"
-                                    >
-                                        Register
-                                    </a>
-
-                                </div>
-
-                            @endauth
-
-                        </div>
-
-                    </div>
-
                 </div>
 
-            </nav>
+            </div>
 
-        </div>
+        </nav>
+
     </div>
+</div>
 
-    <!-- Bottom Bar -->
-    <div class="bottom-bar">
-        <div class="container-fluid">
+<!-- Bottom Bar -->
+<div class="bottom-bar">
 
-            <div class="row align-items-center">
+    <div class="container-fluid">
 
-                <!-- Logo -->
-                <div class="col-md-3">
+        <div class="row align-items-center">
 
-                    <div class="logo">
+            <!-- Logo -->
+            <div class="col-md-3">
 
-                        <a href="{{ route('home') }}">
+                <div class="logo">
 
-                            <img
-                                src="{{ asset('img/logo.png') }}"
-                                alt="Store Logo"
-                            >
+                    <a href="{{ route('home') }}">
 
-                        </a>
-
-                    </div>
-
-                </div>
-
-                <!-- Store Message -->
-                <div class="col-md-6">
-
-                    <div class="text-center">
-                        <h5 class="mb-0">
-                            Discover Our Products
-                        </h5>
-                    </div>
-
-                </div>
-
-                <!-- Cart -->
-                <div class="col-md-3">
-
-                    <div class="user">
-
-                        <a
-                            href="{{ route('cart.index') }}"
-                            class="btn cart"
+                        <img
+                            src="{{ asset('img/logo.png') }}"
+                            alt="Store Logo"
                         >
 
-                            <i class="fa fa-shopping-cart"></i>
+                    </a>
 
-                            <span>
-                                ({{ $cartCount }})
-                            </span>
+                </div>
 
-                        </a>
+            </div>
 
-                    </div>
+            <!-- Search -->
+            <div class="col-md-6">
+
+                <form
+                    action="{{ route('products.index') }}"
+                    method="GET"
+                    class="search"
+                >
+
+                    <input
+                        type="text"
+                        name="search"
+                        value="{{ request('search') }}"
+                        placeholder="Search products"
+                    >
+
+                    <button type="submit">
+                        <i class="fa fa-search"></i>
+                    </button>
+
+                </form>
+
+            </div>
+
+            <!-- Cart -->
+            <div class="col-md-3">
+
+                <div class="user">
+
+                    <a
+                        href="{{ route('cart.index') }}"
+                        class="btn cart"
+                    >
+
+                        <i class="fa fa-shopping-cart"></i>
+
+                        <span>
+                            ({{ $cartCount }})
+                        </span>
+
+                    </a>
 
                 </div>
 
             </div>
 
         </div>
+
     </div>
+
+</div>
 
 </body>
 </html>

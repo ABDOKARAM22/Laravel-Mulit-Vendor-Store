@@ -4,416 +4,384 @@
 
 @section('content')
 
-    <!-- Breadcrumb Start -->
-    <x-breadcrumb currentpage="Products List" />
-    <!-- Breadcrumb End -->
+<!-- Breadcrumb Start -->
+<x-breadcrumb currentpage="Products List" />
+<!-- Breadcrumb End -->
 
 
-    <!-- Product List Start -->
-    <div class="product-view">
+<!-- Product List Start -->
+<div class="product-view">
 
-        <div class="container-fluid">
+    <div class="container-fluid">
 
-            <div class="row">
+        <div class="row">
 
-                <div class="col-lg-8">
+            <div class="col-lg-8">
 
-                    <div class="row">
+                <div class="row">
 
-                        <!-- Product Filters -->
-                        <div class="col-md-12">
+                    <!-- Product Filters -->
+                    <div class="col-md-12">
 
-                            <div class="product-view-top">
+                        <div class="product-view-top">
 
-                                <div class="row">
+                            <div class="row">
 
-                                    <!-- Search -->
-                                    <div class="col-md-4">
+                                <!-- Search -->
+                                <div class="col-md-6">
 
-                                        <div class="product-search">
+                                    <div class="product-search">
 
-                                            <input
-                                                type="text"
-                                                name="search"
-                                                placeholder="Search products"
+                                        <form
+                                            action="{{ route('products.index') }}"
+                                            method="GET"
+                                        >
+                                            <div class="product-search">
+
+                                                <input
+                                                    type="text"
+                                                    name="search"
+                                                    value="{{ request('search') }}"
+                                                    placeholder="Search products"
+                                                >
+
+                                                <button type="submit">
+                                                    <i class="fa fa-search"></i>
+                                                </button>
+
+                                            </div>
+                                        </form>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Sorting -->
+                                <div class="col-md-4">
+
+                                    <div class="product-short">
+
+                                        <div class="dropdown">
+
+                                            <div
+                                                class="dropdown-toggle"
+                                                data-toggle="dropdown"
                                             >
+                                                @switch(request('sort'))
 
-                                            <button type="button">
-                                                <i class="fa fa-search"></i>
-                                            </button>
+                                                    @case('price_low')
+                                                        Price: Low to High
+                                                        @break
 
-                                        </div>
+                                                    @case('price_high')
+                                                        Price: High to Low
+                                                        @break
 
-                                    </div>
+                                                    @case('featured')
+                                                        Featured Products
+                                                        @break
 
-
-                                    <!-- Sorting -->
-                                    <div class="col-md-4">
-
-                                        <div class="product-short">
-
-                                            <div class="dropdown">
-
-                                                <div
-                                                    class="dropdown-toggle"
-                                                    data-toggle="dropdown"
-                                                >
-                                                    Sort Products
-                                                </div>
-
-                                                <div class="dropdown-menu dropdown-menu-right">
-
-                                                    <a
-                                                        href="#"
-                                                        class="dropdown-item"
-                                                    >
+                                                    @case('newest')
                                                         Newest
-                                                    </a>
+                                                        @break
 
-                                                    <a
-                                                        href="#"
-                                                        class="dropdown-item"
-                                                    >
-                                                        Popular
-                                                    </a>
+                                                    @default
+                                                        Sort Products
 
-                                                    <a
-                                                        href="#"
-                                                        class="dropdown-item"
-                                                    >
-                                                        Most Sale
-                                                    </a>
-
-                                                </div>
-
+                                                @endswitch
                                             </div>
 
-                                        </div>
+                                            <div class="dropdown-menu dropdown-menu-right">
 
-                                    </div>
-
-
-                                    <!-- Price Range -->
-                                    <div class="col-md-4">
-
-                                        <div class="product-price-range">
-
-                                            <div class="dropdown">
-
-                                                <div
-                                                    class="dropdown-toggle"
-                                                    data-toggle="dropdown"
+                                                <a
+                                                    href="{{ route('products.index', array_merge(request()->except('page'), ['sort' => 'newest'])) }}"
+                                                    class="dropdown-item {{ request('sort') === 'newest' ? 'active' : '' }}"
                                                 >
-                                                    Product Price Range
-                                                </div>
+                                                    Newest
+                                                </a>
 
-                                                <div class="dropdown-menu dropdown-menu-right">
+                                                <a
+                                                    href="{{ route('products.index', array_merge(request()->except('page'), ['sort' => 'price_low'])) }}"
+                                                    class="dropdown-item {{ request('sort') === 'price_low' ? 'active' : '' }}"
+                                                >
+                                                    Price: Low to High
+                                                </a>
 
-                                                    <a
-                                                        href="#"
-                                                        class="dropdown-item"
-                                                    >
-                                                        $0 to $50
-                                                    </a>
+                                                <a
+                                                    href="{{ route('products.index', array_merge(request()->except('page'), ['sort' => 'price_high'])) }}"
+                                                    class="dropdown-item {{ request('sort') === 'price_high' ? 'active' : '' }}"
+                                                >
+                                                    Price: High to Low
+                                                </a>
 
-                                                    <a
-                                                        href="#"
-                                                        class="dropdown-item"
-                                                    >
-                                                        $51 to $100
-                                                    </a>
-
-                                                </div>
+                                                <a
+                                                    href="{{ route('products.index', array_merge(request()->except('page'), ['sort' => 'featured'])) }}"
+                                                    class="dropdown-item {{ request('sort') === 'featured' ? 'active' : '' }}"
+                                                >
+                                                    Featured Products
+                                                </a>
 
                                             </div>
 
                                         </div>
 
                                     </div>
+
+                                </div>
+
+
+                                <!-- Clear Filters -->
+                                <div class="col-md-2">
+
+                                    @if (request()->query())
+
+                                        <a
+                                            href="{{ route('products.index') }}"
+                                            class="btn"
+                                        >
+                                            Clear Filters
+                                        </a>
+
+                                    @endif
 
                                 </div>
 
                             </div>
 
                         </div>
-                        <!-- Product Filters End -->
+
+                    </div>
+                    <!-- Product Filters End -->
 
 
-                        <!-- Products -->
-                        @forelse ($products as $product)
+                    <!-- Products -->
+                    @forelse ($products as $product)
 
-                            <div class="col-md-4">
+                        <div class="col-md-4">
 
-                                <div class="product-item">
+                            <div class="product-item">
 
-                                    <div class="product-title">
-
-                                        <a
-                                            href="{{ route('products.show', $product->slug) }}"
-                                        >
-                                            {{ $product->name }}
-                                        </a>
-
-                                    </div>
-
-
-                                    <div class="product-image">
-
-                                        <a
-                                            href="{{ route('products.show', $product->slug) }}"
-                                        >
-
-                                            <img
-                                                src="{{ Handel_image::show_image($product->image) }}"
-                                                alt="{{ $product->name }}"
-                                            >
-
-                                        </a>
-
-                                        <div class="product-action">
-
-                                            <a
-                                                href="{{ route('products.show', $product->slug) }}"
-                                                title="View Product"
-                                            >
-                                                <i class="fa fa-search"></i>
-                                            </a>
-
-                                        </div>
-
-                                    </div>
-
-
-                                    <form
-                                        action="{{ route('cart.store') }}"
-                                        method="POST"
-                                    >
-
-                                        @csrf
-
-                                        <input
-                                            type="hidden"
-                                            name="product_id"
-                                            value="{{ $product->id }}"
-                                        >
-
-                                        <input
-                                            type="hidden"
-                                            name="quantity"
-                                            value="1"
-                                        >
-
-                                        <div class="product-price">
-
-                                            <h3>
-
-                                                {{ Currency::format($product->price) }}
-
-                                                @if ($product->compare_price)
-                                                    <span>
-                                                        {{ Currency::format($product->compare_price) }}
-                                                    </span>
-                                                @endif
-
-                                            </h3>
-
-                                            <button
-                                                type="submit"
-                                                class="btn"
-                                            >
-                                                <i class="fa fa-shopping-cart"></i>
-                                                Add to Cart
-                                            </button>
-
-                                        </div>
-
-                                    </form>
-
-                                </div>
-
-                            </div>
-
-                        @empty
-
-                            <div class="col-md-12">
-
-                                <div class="text-center py-5">
-
-                                    <h4>
-                                        No products found.
-                                    </h4>
+                                <div class="product-title">
 
                                     <a
-                                        href="{{ route('products.index') }}"
-                                        class="btn"
+                                        href="{{ route('products.show', $product->slug) }}"
                                     >
-                                        Browse Products
+                                        {{ $product->name }}
                                     </a>
 
                                 </div>
 
+
+                                <div class="product-image">
+
+                                    <a
+                                        href="{{ route('products.show', $product->slug) }}"
+                                    >
+
+                                        <img
+                                            src="{{ Handel_image::show_image($product->image) }}"
+                                            alt="{{ $product->name }}"
+                                        >
+
+                                    </a>
+
+                                    <div class="product-action">
+
+                                        <a
+                                            href="{{ route('products.show', $product->slug) }}"
+                                            title="View Product"
+                                        >
+                                            <i class="fa fa-search"></i>
+                                        </a>
+
+                                    </div>
+
+                                </div>
+
+
+                                <form
+                                    action="{{ route('cart.store') }}"
+                                    method="POST"
+                                >
+
+                                    @csrf
+
+                                    <input
+                                        type="hidden"
+                                        name="product_id"
+                                        value="{{ $product->id }}"
+                                    >
+
+                                    <input
+                                        type="hidden"
+                                        name="quantity"
+                                        value="1"
+                                    >
+
+                                    <div class="product-price">
+
+                                        <h3>
+
+                                            {{ Currency::format($product->price) }}
+
+                                            @if ($product->compare_price)
+
+                                                <span>
+                                                    {{ Currency::format($product->compare_price) }}
+                                                </span>
+
+                                            @endif
+
+                                        </h3>
+
+                                        <button
+                                            type="submit"
+                                            class="btn"
+                                        >
+                                            <i class="fa fa-shopping-cart"></i>
+                                            Add to Cart
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
                             </div>
 
-                        @endforelse
-                        <!-- Products End -->
+                        </div>
 
+                    @empty
 
-                        <!-- Pagination -->
-                        @if ($products->hasPages())
+                        <div class="col-md-12">
 
-                            <div class="col-md-12">
+                            <div class="text-center py-5">
 
-                                <nav aria-label="Products pagination">
+                                <h4>
+                                    No products found.
+                                </h4>
 
-                                    {{ $products->links() }}
-
-                                </nav>
+                                <a
+                                    href="{{ route('products.index') }}"
+                                    class="btn"
+                                >
+                                    Browse Products
+                                </a>
 
                             </div>
 
-                        @endif
-                        <!-- Pagination End -->
+                        </div>
 
-                    </div>
-
-                </div>
+                    @endforelse
+                    <!-- Products End -->
 
 
-                <!-- Sidebar -->
-                <div class="col-lg-4 sidebar">
+                    <!-- Pagination -->
+                    @if ($products->hasPages())
 
+                        <div class="col-md-12">
 
-                    <!-- Categories -->
-                    <div class="sidebar-widget category">
+                            <nav aria-label="Products pagination">
 
-                        <h2 class="title">
-                            Categories
-                        </h2>
+                                {{ $products->links() }}
 
-                        <nav class="navbar bg-light">
+                            </nav>
 
-                            <ul class="navbar-nav">
+                        </div>
 
-                                <li class="nav-item">
-
-                                    <a
-                                        class="nav-link"
-                                        href="#"
-                                    >
-                                        <i class="fa fa-female"></i>
-                                        Fashion & Beauty
-                                    </a>
-
-                                </li>
-
-                                <li class="nav-item">
-
-                                    <a
-                                        class="nav-link"
-                                        href="#"
-                                    >
-                                        <i class="fa fa-child"></i>
-                                        Kids & Babies Clothes
-                                    </a>
-
-                                </li>
-
-                                <li class="nav-item">
-
-                                    <a
-                                        class="nav-link"
-                                        href="#"
-                                    >
-                                        <i class="fa fa-tshirt"></i>
-                                        Men & Women Clothes
-                                    </a>
-
-                                </li>
-
-                                <li class="nav-item">
-
-                                    <a
-                                        class="nav-link"
-                                        href="#"
-                                    >
-                                        <i class="fa fa-mobile-alt"></i>
-                                        Gadgets & Accessories
-                                    </a>
-
-                                </li>
-
-                                <li class="nav-item">
-
-                                    <a
-                                        class="nav-link"
-                                        href="#"
-                                    >
-                                        <i class="fa fa-microchip"></i>
-                                        Electronics & Accessories
-                                    </a>
-
-                                </li>
-
-                            </ul>
-
-                        </nav>
-
-                    </div>
-                    <!-- Categories End -->
-
-
-                    <!-- Tags -->
-                    <div class="sidebar-widget tag">
-
-                        <h2 class="title">
-                            Tags
-                        </h2>
-
-                        <a href="#">
-                            Lorem ipsum
-                        </a>
-
-                        <a href="#">
-                            Vivamus
-                        </a>
-
-                        <a href="#">
-                            Phasellus
-                        </a>
-
-                        <a href="#">
-                            Pulvinar
-                        </a>
-
-                        <a href="#">
-                            Curabitur
-                        </a>
-
-                        <a href="#">
-                            Fusce
-                        </a>
-
-                        <a href="#">
-                            Sem quis
-                        </a>
-
-                        <a href="#">
-                            Mollis metus
-                        </a>
-
-                    </div>
-                    <!-- Tags End -->
-
+                    @endif
+                    <!-- Pagination End -->
 
                 </div>
-                <!-- Sidebar End -->
 
             </div>
+
+
+            <!-- Sidebar -->
+            <div class="col-lg-4 sidebar">
+
+
+                <!-- Categories -->
+                <div class="sidebar-widget category">
+
+                    <h2 class="title">
+                        Categories
+                    </h2>
+
+                    <nav class="navbar bg-light">
+
+                        <ul class="navbar-nav">
+
+                            @forelse ($categories as $category)
+
+                                <li class="nav-item">
+
+                                    <a
+                                        class="nav-link {{ request('category') === $category->slug ? 'active' : '' }}"
+                                        href="{{ route('products.index', array_merge(request()->except('page'), ['category' => $category->slug])) }}"
+                                    >
+                                        <i class="fa fa-folder"></i>
+                                        {{ $category->name }}
+                                    </a>
+
+                                </li>
+
+                            @empty
+
+                                <li class="nav-item">
+
+                                    <span class="nav-link">
+                                        No categories available.
+                                    </span>
+
+                                </li>
+
+                            @endforelse
+
+                        </ul>
+
+                    </nav>
+
+                </div>
+                <!-- Categories End -->
+
+
+                <!-- Tags -->
+                <div class="sidebar-widget tag">
+
+                    <h2 class="title">
+                        Tags
+                    </h2>
+
+                    @forelse ($tags as $tag)
+
+                        <a
+                            href="{{ route('products.index', array_merge(request()->except('page'), ['tag' => $tag->slug])) }}"
+                            class="{{ request('tag') === $tag->slug ? 'active' : '' }}"
+                        >
+                            {{ $tag->name }}
+                        </a>
+
+                    @empty
+
+                        <span class="nav-link">
+                            No tags available.
+                        </span>
+
+                    @endforelse
+
+                </div>
+                <!-- Tags End -->
+
+
+            </div>
+            <!-- Sidebar End -->
 
         </div>
 
     </div>
-    <!-- Product List End -->
 
+</div>
+<!-- Product List End -->
 
 @endsection

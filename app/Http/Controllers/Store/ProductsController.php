@@ -3,15 +3,30 @@
 namespace App\Http\Controllers\Store;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Product;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 
 class ProductsController extends Controller
 {
-    public function index(){
+    public function index(Request $request){
 
-        $products = Product::where('status', 'Active')->paginate(12);
-        return view('store.products.index',compact('products'));
+        $search = $request->query('search');
+        $category = $request->query('category');
+        $tag = $request->query('tag');
+        $sort = $request->query('sort');
+        $products = Product::where('status', 'Active')
+        ->search($search)
+        ->category($category)
+        ->tag($tag)
+        ->sortBy($sort)
+        ->paginate(12)
+        ->withQueryString();
+        $categories = Category::where('status', 'Active')->orderBy('name')->get();
+        $tags = Tag::orderBy('name')->get();
+
+        return view('store.products.index',compact('products', 'categories', 'tags'));
     }
 
     public function show(Product $product){
