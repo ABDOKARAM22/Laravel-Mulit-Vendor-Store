@@ -29,12 +29,26 @@ class ProductsController extends Controller
         return view('store.products.index',compact('products', 'categories', 'tags'));
     }
 
-    public function show(Product $product){
-
-        if($product->status != 'Active'){
+    public function show(Product $product)
+    {
+        if ($product->status != 'Active') {
             abort(404);
         }
 
-        return view('store.products.show',compact('product'));
+        $categories = Category::where('status', 'Active')
+            ->orderBy('name')
+            ->get();
+
+        $relatedProducts = Product::where('status', 'Active')
+            ->where('category_id', $product->category_id)
+            ->where('id', '!=', $product->id)
+            ->latest()
+            ->take(10)
+            ->get();
+
+        return view(
+            'store.products.show',
+            compact('product', 'categories', 'relatedProducts')
+        );
     }
 }
