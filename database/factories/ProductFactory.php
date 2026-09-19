@@ -24,6 +24,7 @@ class ProductFactory extends Factory
             'slug' => str::slug($name),
             'description' => fake()->sentence(),
             'image' => fake()->imageUrl(600,600),
+            'image' => 'https://loremflickr.com/600/600/product?' . fake()->unique()->numberBetween(1, 10000),
             'price' => fake()->randomFloat(1,1,999),
             'compare_price' => fake()->randomFloat(1,1000,1500),
             'featured' => rand(0,1),

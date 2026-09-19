@@ -1,30 +1,47 @@
 <div class="col-md-3">
     <nav class="navbar bg-light">
         <ul class="navbar-nav">
+
             <li class="nav-item">
-                <a class="nav-link" href="#"><i class="fa fa-home"></i>Home</a>
+                <a
+                    class="nav-link"
+                    href="{{ route('home') }}"
+                >
+                    <i class="fa fa-home"></i>
+                    Home
+                </a>
             </li>
+
             <li class="nav-item">
-                <a class="nav-link" href="#"><i class="fa fa-shopping-bag"></i>Best Selling</a>
+                <a
+                    class="nav-link"
+                    href="{{ route('products.index') }}"
+                >
+                    <i class="fa fa-shopping-bag"></i>
+                    All Products
+                </a>
             </li>
+
             <li class="nav-item">
-                <a class="nav-link" href="#"><i class="fa fa-plus-square"></i>New Arrivals</a>
+                <a
+                    class="nav-link"
+                    href="{{ route('cart.index') }}"
+                >
+                    <i class="fa fa-shopping-cart"></i>
+                    Cart
+                </a>
             </li>
+
             <li class="nav-item">
-                <a class="nav-link" href="#"><i class="fa fa-female"></i>Fashion & Beauty</a>
+                <a
+                    class="nav-link"
+                    href="{{ route('checkout') }}"
+                >
+                    <i class="fa fa-credit-card"></i>
+                    Checkout
+                </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#"><i class="fa fa-child"></i>Kids & Babies Clothes</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#"><i class="fa fa-tshirt"></i>Men & Women Clothes</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#"><i class="fa fa-mobile-alt"></i>Gadgets & Accessories</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#"><i class="fa fa-microchip"></i>Electronics & Accessories</a>
-            </li>
+
         </ul>
     </nav>
 </div>

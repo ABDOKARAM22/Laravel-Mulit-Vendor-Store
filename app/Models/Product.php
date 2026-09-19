@@ -22,10 +22,11 @@ class Product extends Model
 
     protected $fillable  = ['name','category_id','description','image','options','price','rating','featured','status'];
 
-    static function Scopefeatured(Builder $query){
-        $query->where('featured','=',1);
-    }    
-
+    public function scopeFeatured(Builder $query): Builder
+    {
+        return $query->where('featured', true);
+    }
+    
     public function category(){
         return $this->belongsTo(Category::class,'category_id','id');
     }

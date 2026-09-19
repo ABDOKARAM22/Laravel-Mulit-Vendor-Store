@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Repositories\Cart\CartModelRepository;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -15,8 +16,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrapFour();
 
-        $this->app->bind(CartModelRepository::class , function(){
-            return  new CartModelRepository();
+        $this->app->bind(CartModelRepository::class, function () {
+            return new CartModelRepository();
         });
     }
 
@@ -25,5 +26,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        View::composer('layouts.header', function ($view) {
+            $cart = app(CartModelRepository::class);
+
+            $cartCount = $cart->get()->sum('quantity');
+
+            $view->with('cartCount', $cartCount);
+        });
     }
 }
