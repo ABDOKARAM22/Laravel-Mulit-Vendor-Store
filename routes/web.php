@@ -8,26 +8,43 @@ use App\Http\Controllers\Store\HomeController;
 use App\Http\Controllers\Store\ProductsController;
 use App\Http\Controllers\Store\OrdersController;
 
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::get('/', [HomeController::class,'index'])->name('home');
+Route::get('/products', [ProductsController::class, 'index'])
+    ->name('products.index');
 
-Route::get('/products', [ProductsController::class,'index'])->name('products.index');
-Route::get('/products/{product:slug}', [ProductsController::class,'show'])->name('products.show');
+Route::get('/products/{product:slug}', [ProductsController::class, 'show'])
+    ->name('products.show');
 
-Route::resource('/cart', CartController::class)->only(['index', 'store', 'update', 'destroy']);
+Route::resource('/cart', CartController::class)
+    ->only(['index', 'store', 'update', 'destroy']);
 
-Route::get('/cheackout',[CheckoutController::class,'create'])->name('checkout');
-Route::post('/cheackout',[CheckoutController::class,'store'])->name('checkout');
+Route::get('/cheackout', [CheckoutController::class, 'create'])
+    ->name('checkout');
+
+Route::post('/cheackout', [CheckoutController::class, 'store'])
+    ->name('checkout');
 
 Route::middleware('auth:web')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::get('/orders', [OrdersController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{order}', [OrdersController::class, 'show'])->name('orders.show');
+
+    // Customer Profile
+    Route::get('/profile', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
+
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
+
+    Route::delete('/profile', [ProfileController::class, 'destroy'])
+        ->name('profile.destroy');
+
+    // Customer Orders
+    Route::get('/orders', [OrdersController::class, 'index'])
+        ->name('orders.index');
+
+    Route::get('/orders/{order}', [OrdersController::class, 'show'])
+        ->name('orders.show');
 });
 
+require __DIR__ . '/auth.php';
 
-require __DIR__.'/auth.php';
-
-require __DIR__.'/dashboard.php';
+require __DIR__ . '/dashboard.php';
