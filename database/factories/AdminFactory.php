@@ -2,9 +2,8 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 use App\Models\Admin;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Admin>
@@ -20,12 +19,20 @@ class AdminFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
+
             'email' => $this->faker->unique()->safeEmail(),
-            'password' => bcrypt('password'),
+
+            'password' => bcrypt('123456789'),
+
             'role' => $this->faker->randomElement([
                 Admin::ROLE_ADMIN,
                 Admin::ROLE_SUPER_ADMIN,
             ]),
+
+            'store_id' => null,
+
+            'status' => Admin::STATUS_ACTIVE,
+
             'created_at' => now(),
         ];
     }

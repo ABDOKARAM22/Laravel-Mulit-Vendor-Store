@@ -24,12 +24,17 @@ class StorePolicy
 
     public function create(Admin $admin): bool
     {
-        return false;
+        return $admin->isAdmin();
     }
 
     public function update(Admin $admin, Store $store): bool
     {
-        return $this->ownsStore($admin, $store);
+        return $admin->isAdmin() || $this->ownsStore($admin, $store);
+    }
+
+    public function updateStatus(Admin $admin, Store $store): bool
+    {
+        return $admin->isAdmin();
     }
 
     public function delete(Admin $admin, Store $store): bool
@@ -39,6 +44,7 @@ class StorePolicy
 
     private function ownsStore(Admin $admin, Store $store): bool
     {
-        return $admin->isVendor() && $admin->store_id === $store->id;
+        return $admin->isVendor()
+            && $admin->store_id === $store->id;
     }
 }

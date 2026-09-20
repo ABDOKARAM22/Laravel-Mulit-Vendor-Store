@@ -14,36 +14,27 @@ class Admin extends Authenticatable
     public const ROLE_ADMIN = 'Admin';
     public const ROLE_VENDOR = 'Vendor';
 
+    public const STATUS_PENDING = 'Pending';
+    public const STATUS_ACTIVE = 'Active';
+    public const STATUS_REJECTED = 'Rejected';
+    public const STATUS_SUSPENDED = 'Suspended';
+
     protected $guard = 'admin';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
         'role',
         'store_id',
+        'status',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -75,5 +66,10 @@ class Admin extends Authenticatable
     public function isVendor(): bool
     {
         return $this->role === self::ROLE_VENDOR;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE;
     }
 }

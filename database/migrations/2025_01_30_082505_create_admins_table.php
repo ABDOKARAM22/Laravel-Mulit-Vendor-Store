@@ -13,12 +13,35 @@ return new class extends Migration
     {
         Schema::create('admins', function (Blueprint $table) {
             $table->id();
+
             $table->string('name');
+
             $table->string('email')->unique();
+
             $table->timestamp('email_verified_at')->nullable();
+
             $table->string('password');
+
             $table->rememberToken();
-            $table->enum('role',['Admin' , 'Super_Admin'])->default('Admin');
+
+            $table->enum('role', [
+                'Admin',
+                'Super_Admin',
+                'Vendor',
+            ])->default('Admin');
+
+            $table->foreignId('store_id')
+                ->nullable()
+                ->constrained('stores')
+                ->nullOnDelete();
+
+            $table->enum('status', [
+                'Pending',
+                'Active',
+                'Rejected',
+                'Suspended',
+            ])->default('Active');
+
             $table->timestamps();
         });
     }

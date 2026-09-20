@@ -10,6 +10,12 @@
 
     $canCreateProducts =
         $admin->can('create', \App\Models\Product::class);
+
+    $canViewStores =
+        $admin->can('viewAny', \App\Models\Store::class);
+
+    $canCreateStores =
+        $admin->can('create', \App\Models\Store::class);
 @endphp
 
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
@@ -24,6 +30,7 @@
 
     </a>
 
+
     <!-- Sidebar -->
     <div class="sidebar">
 
@@ -31,15 +38,18 @@
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
 
             <div class="image">
+
                 <div class="img-circle elevation-2 d-flex align-items-center justify-content-center bg-secondary"
                      style="width: 34px; height: 34px;">
 
                     <i class="fas fa-user text-white"></i>
 
                 </div>
+
             </div>
 
             <div class="info">
+
                 <a href="{{ route('dashboard.profile.edit') }}"
                    class="d-block">
 
@@ -48,11 +58,15 @@
                 </a>
 
                 <small class="text-muted">
+
                     {{ $admin->role }}
+
                 </small>
+
             </div>
 
         </div>
+
 
         <!-- Navigation -->
         <nav class="mt-2">
@@ -61,6 +75,7 @@
                 data-widget="treeview"
                 role="menu"
                 data-accordion="false">
+
 
                 <!-- Dashboard -->
                 <li class="nav-item">
@@ -77,6 +92,71 @@
                     </a>
 
                 </li>
+
+
+                <!-- Stores -->
+                @if ($canViewStores)
+
+                    <li class="nav-item {{ request()->routeIs('dashboard.stores.*') ? 'menu-open' : '' }}">
+
+                        <a href="#"
+                           class="nav-link {{ request()->routeIs('dashboard.stores.*') ? 'active' : '' }}">
+
+                            <i class="nav-icon fas fa-store"></i>
+
+                            <p>
+                                Stores
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+
+                        </a>
+
+
+                        <ul class="nav nav-treeview">
+
+                            <!-- All Stores -->
+                            <li class="nav-item">
+
+                                <a href="{{ route('dashboard.stores.index') }}"
+                                   class="nav-link {{ request()->routeIs('dashboard.stores.index') ? 'active' : '' }}">
+
+                                    <i class="far fa-circle nav-icon"></i>
+
+                                    <p>
+                                        All Stores
+                                    </p>
+
+                                </a>
+
+                            </li>
+
+
+                            <!-- Add Store -->
+                            @if ($canCreateStores)
+
+                                <li class="nav-item">
+
+                                    <a href="{{ route('dashboard.stores.create') }}"
+                                       class="nav-link {{ request()->routeIs('dashboard.stores.create') ? 'active' : '' }}">
+
+                                        <i class="far fa-circle nav-icon"></i>
+
+                                        <p>
+                                            Add Store
+                                        </p>
+
+                                    </a>
+
+                                </li>
+
+                            @endif
+
+                        </ul>
+
+                    </li>
+
+                @endif
+
 
                 <!-- Products -->
                 @if ($canViewProducts)
@@ -95,6 +175,7 @@
 
                         </a>
 
+
                         <ul class="nav nav-treeview">
 
                             <!-- All Products -->
@@ -112,6 +193,7 @@
                                 </a>
 
                             </li>
+
 
                             <!-- Add Product -->
                             @if ($canCreateProducts)
@@ -132,6 +214,7 @@
                                 </li>
 
                             @endif
+
 
                             <!-- Trashed Products -->
                             <li class="nav-item">
@@ -155,6 +238,7 @@
 
                 @endif
 
+
                 <!-- Categories -->
                 @if ($canManageCategories)
 
@@ -171,6 +255,7 @@
                             </p>
 
                         </a>
+
 
                         <ul class="nav nav-treeview">
 
@@ -190,6 +275,7 @@
 
                             </li>
 
+
                             <!-- Add Category -->
                             <li class="nav-item">
 
@@ -205,6 +291,7 @@
                                 </a>
 
                             </li>
+
 
                             <!-- Trashed Categories -->
                             <li class="nav-item">
@@ -228,6 +315,7 @@
 
                 @endif
 
+
                 <!-- Orders -->
                 <li class="nav-item">
 
@@ -243,6 +331,7 @@
                     </a>
 
                 </li>
+
 
                 <!-- Profile -->
                 <li class="nav-item">

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('number')->unique();
             $table->string('payment_method');
-            $table->enum('status',['pending','processing','delivering','completed','cancelled'.'refunded'])->default('pending');
+            $table->enum('status',['pending','processing','delivering','completed','cancelled','refunded'])->default('pending');
             $table->enum('payment_status',['pending','paid','failed'])->default('pending');
 
             $table->float('shipping')->default(0);
