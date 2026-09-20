@@ -8,6 +8,7 @@ use App\Http\Controllers\Dashboard\ProductsController;
 use App\Http\Controllers\Dashboard\ProfileController;
 use App\Http\Controllers\Dashboard\OrdersController;
 use App\Http\Controllers\Dashboard\StoresController;
+use App\Http\Controllers\Dashboard\VendorsController;
 
 
 // Admin Authentication routes
@@ -46,6 +47,17 @@ Route::group([
             ->name('categories.forcedelete');
 
         Route::resource('/categories', CategoriesController::class);
+
+        Route::get('/vendors', [VendorsController::class, 'index'])
+            ->name('vendors.index');
+        Route::get('/vendors/{vendor}', [VendorsController::class, 'show'])
+            ->name('vendors.show');
+        Route::get('/vendors/{vendor}/edit', [VendorsController::class, 'edit'])
+            ->name('vendors.edit');
+        Route::put('/vendors/{vendor}', [VendorsController::class, 'update'])
+            ->name('vendors.update');
+        Route::patch('/vendors/{vendor}/status', [VendorsController::class, 'updateStatus'])
+            ->name('vendors.status');
     });
 
 

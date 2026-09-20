@@ -16,6 +16,9 @@
 
     $canCreateStores =
         $admin->can('create', \App\Models\Store::class);
+
+    $canManageVendors =
+        $admin->can('viewAny', \App\Models\Admin::class);
 @endphp
 
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
@@ -155,6 +158,16 @@
 
                     </li>
 
+                @endif
+
+                @if ($canManageVendors)
+                    <li class="nav-item">
+                        <a href="{{ route('dashboard.vendors.index') }}"
+                           class="nav-link {{ request()->routeIs('dashboard.vendors.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-users"></i>
+                            <p>Vendors</p>
+                        </a>
+                    </li>
                 @endif
 
 

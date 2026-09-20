@@ -7,8 +7,14 @@ use App\Http\Controllers\Store\CheckoutController;
 use App\Http\Controllers\Store\HomeController;
 use App\Http\Controllers\Store\ProductsController;
 use App\Http\Controllers\Store\OrdersController;
+use App\Http\Controllers\VendorRegistrationController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::get('/vendor/register', [VendorRegistrationController::class, 'create'])
+    ->name('vendor.register');
+
+Route::post('/vendor/register', [VendorRegistrationController::class, 'store']);
 
 Route::get('/products', [ProductsController::class, 'index'])
     ->name('products.index');

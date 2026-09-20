@@ -8,6 +8,7 @@ use App\Models\Store;
 use App\Services\MediaUploader;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class StoresController extends Controller
@@ -173,9 +174,11 @@ class StoresController extends Controller
             ],
         ]);
 
-        $store->update([
-            'status' => $validated['status'],
-        ]);
+        DB::transaction(function () use ($store, $validated): void {
+            $store->forceFill([
+                'status' => $validated['status'],
+            ])->save();
+        });
 
         return back()->with(
             'success',
