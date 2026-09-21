@@ -200,6 +200,13 @@
                                     Register
                                 </a>
 
+                                <a
+                                    href="{{ route('vendor.register') }}"
+                                    class="dropdown-item"
+                                >
+                                    Register as Vendor
+                                </a>
+
                             </div>
 
                         @endauth

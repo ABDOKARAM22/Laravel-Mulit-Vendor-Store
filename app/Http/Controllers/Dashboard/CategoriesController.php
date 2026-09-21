@@ -6,63 +6,116 @@ use App\Models\Category;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
 use App\Services\MediaUploader;
 
 class CategoriesController extends Controller
 {
     public function index(Request $request)
     {
-        $categories = Category::leftJoin("categories as parent", "categories.parent_id", "=", "parent.id")
-            ->selectRaw('(SELECT COUNT(*) FROM products WHERE category_id = categories.id) as products_count')
+        $admin = $request->user('admin');
+
+        Gate::forUser($admin)->authorize('viewAny', Category::class);
+
+        $categories = Category::leftJoin(
+                "categories as parent",
+                "categories.parent_id",
+                "=",
+                "parent.id"
+            )
+            ->selectRaw(
+                '(SELECT COUNT(*) FROM products WHERE category_id = categories.id) as products_count'
+            )
             ->addSelect("categories.*", "parent.name as parent_name")
-            ->filters($request)->paginate();
+            ->filters($request)
+            ->paginate();
+
         return view("Dashboard.categories.index", compact("categories"));
     }
-    
-    public function create()
+
+    public function create(Request $request)
     {
+        Gate::forUser($request->user('admin'))
+            ->authorize('create', Category::class);
+
         $parent_category = Category::whereNull("parent_id")->get();
 
-        return view("Dashboard.categories.create", compact("parent_category"));
+        return view(
+            "Dashboard.categories.create",
+            compact("parent_category")
+        );
     }
 
     public function store(Request $request, MediaUploader $media)
     {
+        $admin = $request->user('admin');
+
+        Gate::forUser($admin)
+            ->authorize('create', Category::class);
+
         // Inputs validation
         $request->validate(Category::CategoriesVlaidate());
 
-        // Merg the slug into the request
+        // Merge the slug into the request
         $request->merge([
-            "slug" => STR::slug($request->name),
+            "slug" => Str::slug($request->name),
         ]);
 
         // Except the image field from the request to put the new path
         $data = $request->except('image');
         $data['image'] = $this->storeImage($request, $media);
 
-
         Category::create($data);
-        return redirect()->route("dashboard.categories.index")->with("success", "Category Added Sucsefully.");
+
+        return redirect()
+            ->route("dashboard.categories.index")
+            ->with("success", "Category Added Sucsefully.");
     }
 
-    public function show(string $id)
+    public function show(string $id, Request $request)
     {
         $category = Category::findOrFail($id);
-        $products = $category->products()->with('store')->paginate();
-        return view('Dashboard.categories.show',compact(['category','products']));
+
+        Gate::forUser($request->user('admin'))
+            ->authorize('view', $category);
+
+        $products = $category->products()
+            ->with('store')
+            ->paginate();
+
+        return view(
+            'Dashboard.categories.show',
+            compact(['category', 'products'])
+        );
     }
 
-    public function edit(string $id)
+    public function edit(string $id, Request $request)
     {
-
         $category = Category::findOrFail($id);
-        $parent_category = Category::where('id', "<>", $id)->whereNull('parent_id')->get();
-        return view("Dashboard.categories.edit", compact("category", "parent_category"));
+
+        Gate::forUser($request->user('admin'))
+            ->authorize('update', $category);
+
+        $parent_category = Category::where('id', "<>", $id)
+            ->whereNull('parent_id')
+            ->get();
+
+        return view(
+            "Dashboard.categories.edit",
+            compact("category", "parent_category")
+        );
     }
 
-    public function update(Request $request, string $id, MediaUploader $media)
-    {
+    public function update(
+        Request $request,
+        string $id,
+        MediaUploader $media
+    ) {
         $category = Category::findOrFail($id);
+
+        Gate::forUser($request->user('admin'))
+            ->authorize('update', $category);
+
         $old_image = $category->image;
 
         $request->validate(Category::CategoriesVlaidate($id));
@@ -81,53 +134,90 @@ class CategoriesController extends Controller
             $media->delete($old_image);
         }
 
-        return redirect()->route("dashboard.categories.index")->with("success", "Category Updated Sucsefully.");
+        return redirect()
+            ->route("dashboard.categories.index")
+            ->with("success", "Category Updated Sucsefully.");
     }
 
-    public function destroy(string $id)
+    public function destroy(string $id, Request $request)
     {
         $category = Category::findOrFail($id);
+
+        Gate::forUser($request->user('admin'))
+            ->authorize('delete', $category);
+
         $category->delete();
-        return redirect()->route("dashboard.categories.index")->with("success", "Category Deleted Sucsefully.");
+
+        return redirect()
+            ->route("dashboard.categories.index")
+            ->with("success", "Category Deleted Sucsefully.");
     }
 
+    public function trash(Request $request)
+    {
+        $admin = $request->user('admin');
 
-    public function trash(Request $request){
+        Gate::forUser($admin)
+            ->authorize('viewAny', Category::class);
 
-        $categories = Category::onlyTrashed()->filters($request)->paginate();
-        return view('Dashboard.categories.trash',compact('categories'));
+        $categories = Category::onlyTrashed()
+            ->filters($request)
+            ->paginate();
 
+        return view(
+            'Dashboard.categories.trash',
+            compact('categories')
+        );
     }
 
-    public function restore($id){
-        $category = Category::onlyTrashed()->FindOrFail($id);
+    public function restore($id, Request $request)
+    {
+        $category = Category::onlyTrashed()->findOrFail($id);
+
+        Gate::forUser($request->user('admin'))
+            ->authorize('restore', $category);
+
         $category->restore();
-        return redirect()->route('dashboard.categories.trash')->with('success','Category Restored Sucsefully.');
-    }
-    
-    public function forcedelete($id){
 
-        $category = Category::onlyTrashed()->FindOrFail($id);
-        
+        return redirect()
+            ->route('dashboard.categories.trash')
+            ->with('success', 'Category Restored Sucsefully.');
+    }
+
+    public function forcedelete($id, Request $request, MediaUploader $media)
+    {
+        $category = Category::onlyTrashed()->findOrFail($id);
+
+        Gate::forUser($request->user('admin'))
+            ->authorize('forceDelete', $category);
+
         $image = $category->image;
 
         $category->forceDelete();
 
-        if($image) {
+        if ($image) {
             $media->delete($image);
         }
 
-        return redirect()->route("dashboard.categories.trash")->with("success", "Category Deleted Forever Sucsefully.");
-
-
+        return redirect()
+            ->route("dashboard.categories.trash")
+            ->with(
+                "success",
+                "Category Deleted Forever Sucsefully."
+            );
     }
 
-    protected function storeImage(Request $request, MediaUploader $media): ?string
-    {
+    protected function storeImage(
+        Request $request,
+        MediaUploader $media
+    ): ?string {
         if (! $request->hasFile('image')) {
             return null;
         }
 
-        return $media->store($request->file('image'), 'categories');
+        return $media->store(
+            $request->file('image'),
+            'categories'
+        );
     }
 }

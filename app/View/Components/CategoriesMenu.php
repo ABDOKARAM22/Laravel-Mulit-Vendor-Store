@@ -5,15 +5,15 @@ namespace App\View\Components;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
+use App\Models\Category;
 
 class CategoriesMenu extends Component
 {
-    /**
-     * Create a new component instance.
-     */
+    public $categories;
+    
     public function __construct()
     {
-        //
+        $this->categories = Category::where('status', 'Active')->orderBy('name')->get();
     }
 
     /**

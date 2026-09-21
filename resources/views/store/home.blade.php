@@ -199,6 +199,36 @@
 <!-- Feature End -->
 
 
+<!-- Vendor CTA Start -->
+
+<div class="vendor-cta">
+    <div class="container-fluid">
+
+        <div class="text-center py-5">
+
+            <h2>Start Selling on Abdo Store</h2>
+
+            <p>
+                Have products to sell?
+                Join our marketplace and start growing your business.
+            </p>
+
+            <a
+                class="btn"
+                href="{{ route('vendor.register') }}"
+            >
+                <i class="fa fa-store"></i>
+                Become a Vendor
+            </a>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- Vendor CTA End -->
+
+
 <!-- Featured Product Start -->
 
 <div class="featured-product product">

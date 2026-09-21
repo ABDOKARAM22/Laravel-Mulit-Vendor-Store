@@ -1,14 +1,18 @@
 # Laravel Multi-Vendor Store
 
-Laravel 11 marketplace application with customer storefront, multi-store vendor management, checkout, inventory protection, order management, notifications, and private store broadcasting.
+Laravel 11 marketplace application with a customer storefront, multi-store vendor management, vendor onboarding and approval, checkout, inventory protection, order management, notifications, and private store broadcasting.
 
 ## Features
 
 - Customer registration, login, profile, order history, and guest checkout.
 - Product and category management through the admin dashboard.
-- Vendors are `Admin` records assigned to one `Store`.
+- Store management through the dashboard, including store search, status filtering, details, editing, and status updates.
+- Public vendor registration with vendor and store creation held in a pending state until administrator review.
+- Vendor approval and rejection workflow that updates the vendor and its store together.
+- Vendors are `Admin` records with `role = Vendor`, linked to their assigned `Store` through `admins.store_id`.
 - Store-scoped vendor product and order access.
-- Super Admin global access; Admin platform operational access.
+- Super Admin global access; Admin platform operational access and vendor management; Vendor assigned-store operations; Customer storefront and order access.
+- Pending, rejected, and suspended admin accounts cannot authenticate; only active admin accounts can access the dashboard.
 - Server-side prices, totals, stock checks, and one order per store.
 - Transactional checkout with row locking and order-number sequences.
 - Immutable order and order-item checkout snapshots.
@@ -23,13 +27,32 @@ Laravel 11 marketplace application with customer storefront, multi-store vendor 
 | `web` | `App\Models\User` | Customers |
 | `admin` | `App\Models\Admin` | Super Admin, Admin, and Vendor staff |
 
-Vendors have `role = Vendor` and an assigned `store_id`. Multiple vendor admins may manage the same store. Authorization is enforced through policies and explicit store-scoped queries.
+The application uses four operational roles:
+
+- **Super Admin**: global dashboard access, including vendor and store management.
+- **Admin**: platform operational access, including vendor review, approval, rejection, and editing.
+- **Vendor**: an `Admin` record with `role = Vendor`, one assigned store, and store-scoped product and order access.
+- **Customer**: a `web`-guard `User` who uses the storefront, cart, checkout, profile, and customer order history.
+
+Vendor and store records are connected through `admins.store_id`. Authorization is enforced through policies, dashboard role middleware, protected request validation, and explicit store-scoped queries. Vendors cannot access vendor-management routes, change their role or store assignment, or change their own authorization status.
+
+## Store and vendor lifecycle
+
+Vendors can apply through the public `/vendor/register` workflow with their name, email, password, store name, and store description. The application generates the store slug server-side and creates the vendor and store in one database transaction:
+
+- Vendor status: `Pending`
+- Store status: `Pending`
+
+Administrators review vendor applications from the dashboard. Approval changes both records to `Active`; rejection changes both records to `Rejected`. Store management also supports `Pending`, `Active`, `Inactive`, and `Rejected` store statuses. Admin status values include `Pending`, `Active`, `Rejected`, and `Suspended`.
+
+Pending, rejected, and suspended admin accounts are rejected by the admin login flow. A vendor cannot approve, reject, activate, suspend, or otherwise change their own status or another vendor's status.
 
 ## Architecture
 
 - `app/Http/Controllers/Store` contains storefront, cart, checkout, and customer order flows.
-- `app/Http/Controllers/Dashboard` contains staff product, category, profile, and order management.
-- `app/Policies` contains Product, Category, Store, and Order authorization.
+- `app/Http/Controllers/Dashboard` contains dashboard product, category, store, vendor, profile, and order management.
+- `app/Http/Controllers/VendorRegistrationController.php` handles public vendor applications.
+- `app/Policies` contains Admin, Product, Category, Store, and Order authorization.
 - `app/Http/Requests` contains request validation and status-transition authorization.
 - `app/Repositories/Cart` provides cookie-scoped cart access.
 - `app/Services/MediaUploader.php` centralizes upload and deletion behavior.
@@ -101,7 +124,7 @@ php artisan config:clear
 php artisan config:cache
 ```
 
-The feature suite covers authentication, role authorization, product ownership, cart ownership, checkout transactions, stock protection, order isolation, status transitions, notifications, broadcasting authorization, uploads, and security hardening.
+The feature suite covers authentication, role authorization, vendor registration and approval/rejection, vendor and store ownership protection, product ownership, cart ownership, checkout transactions, stock protection, order isolation, status transitions, notifications, broadcasting authorization, uploads, and security hardening. The dedicated vendor-management feature tests cover pending creation, duplicate validation, protected fields, direct route authorization, status synchronization, and blocked inactive-account login.
 
 ## Production notes
 
@@ -122,6 +145,6 @@ Do not expose debug pages, use development credentials, or deploy the repository
 - COD is the only implemented payment method.
 - Shipping, tax, discounts, refunds, and coupons are currently zero/unimplemented business rules.
 - Storefront filtering and search controls are limited.
-- The UI still contains some template navigation and placeholder content.
+- Vendor registration and approval are administrative workflows; no automatic vendor activation or login is performed after registration.
 - The migration history should be consolidated or documented if SQLite or another database driver must be supported.
 - Browser-level frontend tests and true multi-process concurrency tests are not included.
